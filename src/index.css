@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family:
+		'Inter',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		'Roboto',
+		sans-serif;
+	background-color: #f8fafc;
+}
+
+.sidebar-active {
+	transform: translateX(0);
+}
+
+.sidebar-inactive {
+	transform: translateX(-100%);
+}
+
+@media (min-width: 768px) {
+	.sidebar-inactive {
+		transform: translateX(0);
+	}
+}
