@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Client, useClients } from '../contexts/ClientContext';
 import { usePayments } from '../contexts/PaymentContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface ClientDetailsModalProps {
     client: Client;
@@ -10,7 +11,8 @@ interface ClientDetailsModalProps {
 
 const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ client, mode, onClose }) => {
     const { updateClient } = useClients();
-    const { addPayment } = usePayments();
+    const { addPayment, updateClientNameInPayments } = usePayments();
+    const toast = useToast();
     const [isEditing, setIsEditing] = useState(mode === 'edit');
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -59,17 +61,32 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ client, mode, o
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.clientName || !formData.projectName || !formData.email || !formData.contact) {
-            alert('Please fill in all required fields');
+            toast.warning('Please fill in all required fields');
             return;
         }
+        
+        // Check if client name or project name changed
+        const oldClientName = client.clientName;
+        const oldProjectName = client.projectName;
+        const newClientName = formData.clientName;
+        const newProjectName = formData.projectName;
+        
+        // Update client
         updateClient(client.id, formData);
+        
+        // Update all related payments if client name or project name changed
+        if (oldClientName !== newClientName || oldProjectName !== newProjectName) {
+            updateClientNameInPayments(oldClientName, newClientName, newProjectName);
+        }
+        
         setIsEditing(false);
+        toast.success('Client updated successfully!');
     };
 
     const handlePaymentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!paymentData.amount || !paymentData.date) {
-            alert('Please fill in all required payment fields');
+            toast.warning('Please fill in all required payment fields');
             return;
         }
 
@@ -97,7 +114,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ client, mode, o
             lastPayment: `₹${paymentData.amount} - ${new Date(paymentData.date).toLocaleDateString()}`
         });
 
-        alert('Payment added successfully!');
+        toast.success('Payment added successfully!');
         setShowPaymentForm(false);
         setPaymentData({
             amount: '',

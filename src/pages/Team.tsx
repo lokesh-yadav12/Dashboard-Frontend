@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useTeam, TeamMember } from '../contexts/TeamContext';
-import TeamMemberModal from '../components/TeamMemberModal';
+import { useNavigate } from 'react-router-dom';
+import { useTeam } from '../contexts/TeamContext';
 import AddTeamMemberModal from '../components/AddTeamMemberModal';
+import { uploadAPI } from '../services/api';
 
 const Team: React.FC = () => {
     const { teamMembers } = useTeam();
+    const navigate = useNavigate();
     const [filter, setFilter] = useState('all');
-    const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-    const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
     const [showAddModal, setShowAddModal] = useState(false);
 
     const getStatusColor = (status: string) => {
@@ -59,15 +59,7 @@ const Team: React.FC = () => {
         }
     };
 
-    const handleViewProfile = (member: TeamMember) => {
-        setSelectedMember(member);
-        setModalMode('view');
-    };
 
-    const handleEditMember = (member: TeamMember) => {
-        setSelectedMember(member);
-        setModalMode('edit');
-    };
 
     return (
         <div className="p-6 space-y-6">
@@ -160,15 +152,36 @@ const Team: React.FC = () => {
                 {filterMembers().map((member) => (
                     <div 
                         key={member.id} 
-                        onClick={() => handleViewProfile(member)}
+                        onClick={() => navigate(`/team/${member.id}`)}
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
-                                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                    {member.avatar}
-                                </div>
+                                {member.profileImage ? (
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500 bg-gray-100">
+                                        <img 
+                                            src={uploadAPI.viewFile('profileImage', member.profileImage)}
+                                            alt={member.name}
+                                            className="w-full h-full object-cover"
+                                            onLoad={() => console.log('Image loaded:', member.name, member.profileImage)}
+                                            onError={(e) => {
+                                                console.error('Image failed to load:', member.name, member.profileImage);
+                                                // Fallback to avatar if image fails to load
+                                                const target = e.currentTarget;
+                                                target.style.display = 'none';
+                                                const parent = target.parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = `<div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">${member.avatar}</div>`;
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        {member.avatar}
+                                    </div>
+                                )}
                                 <div className="ml-3">
                                     <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
                                     <p className="text-sm text-gray-600">{member.role}</p>
@@ -181,6 +194,18 @@ const Team: React.FC = () => {
 
                         {/* Details */}
                         <div className="space-y-3">
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Employee ID</p>
+                                <p className="text-sm font-semibold text-blue-600">{member.employeeId}</p>
+                            </div>
+
+                            {member.highestQualification && (
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Highest Qualification</p>
+                                    <p className="text-sm text-gray-900">{member.highestQualification}</p>
+                                </div>
+                            )}
+
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Department</p>
                                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getDepartmentColor(member.department)}`}>
@@ -215,27 +240,7 @@ const Team: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewProfile(member);
-                                }}
-                                className="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200"
-                            >
-                                View Profile
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditMember(member);
-                                }}
-                                className="flex-1 px-3 py-2 text-sm bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                            >
-                                Edit
-                            </button>
-                        </div>
+
                     </div>
                 ))}
             </div>
@@ -252,15 +257,6 @@ const Team: React.FC = () => {
                         }
                     </p>
                 </div>
-            )}
-
-            {/* Team Member Modal */}
-            {selectedMember && (
-                <TeamMemberModal
-                    member={selectedMember}
-                    mode={modalMode}
-                    onClose={() => setSelectedMember(null)}
-                />
             )}
 
             {/* Add Team Member Modal */}

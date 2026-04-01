@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useClients, Client } from '../contexts/ClientContext';
 import AddClientModal from '../components/AddClientModal';
-import ClientDetailsModal from '../components/ClientDetailsModal';
 
 const Clients: React.FC = () => {
     const { clients } = useClients();
+    const navigate = useNavigate();
     const [filter, setFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
     const [searchQuery, setSearchQuery] = useState('');
 
     const getStatusColor = (status: string) => {
@@ -45,24 +45,20 @@ const Clients: React.FC = () => {
                     dateMatch = true;
             }
 
+            // Status filter
+            let statusMatch = true;
+            if (statusFilter !== 'all') {
+                statusMatch = client.status === statusFilter;
+            }
+
             // Search filter
             const searchMatch = searchQuery === '' ||
                 client.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 client.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 client.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-            return dateMatch && searchMatch;
+            return dateMatch && statusMatch && searchMatch;
         });
-    };
-
-    const handleViewDetails = (client: Client) => {
-        setSelectedClient(client);
-        setModalMode('view');
-    };
-
-    const handleEditClient = (client: Client) => {
-        setSelectedClient(client);
-        setModalMode('edit');
     };
 
     return (
@@ -116,11 +112,23 @@ const Clients: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Filter */}
+                    {/* Status Filter */}
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="all">All Projects</option>
+                        <option value="live">Live</option>
+                        <option value="development">Development</option>
+                        <option value="completed">Completed</option>
+                    </select>
+
+                    {/* Date Filter */}
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="px-4 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="all">All Time</option>
                         <option value="7days">Last 7 Days</option>
@@ -177,7 +185,7 @@ const Clients: React.FC = () => {
                 {filterClients().map((client) => (
                     <div 
                         key={client.id} 
-                        onClick={() => handleViewDetails(client)}
+                        onClick={() => navigate(`/clients/${client.id}`)}
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
                     >
                         {/* Client Name */}
@@ -200,6 +208,28 @@ const Clients: React.FC = () => {
                                 <p className="text-sm text-gray-900">{new Date(client.startDate).toLocaleDateString()}</p>
                             </div>
 
+                            {client.status === 'live' && client.maintenanceStartDate && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-3 -mx-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">🔧</span>
+                                        <div>
+                                            <p className="text-xs font-medium text-green-700">Maintenance Period</p>
+                                            <p className="text-sm font-bold text-green-900">Started: {new Date(client.maintenanceStartDate).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {client.status === 'completed' && client.maintenanceStartDate && (
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600">Maintenance Start</p>
+                                    <p className="text-sm text-gray-900 flex items-center gap-1">
+                                        <span className="text-green-600">🔧</span>
+                                        {new Date(client.maintenanceStartDate).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            )}
+
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Contact</p>
                                 <p className="text-sm text-gray-900">{client.contact}</p>
@@ -219,28 +249,6 @@ const Clients: React.FC = () => {
                                 <p className="text-sm font-medium text-gray-600">Last Meet Note</p>
                                 <p className="text-sm text-gray-900 line-clamp-2">{client.lastMeetNote}</p>
                             </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewDetails(client);
-                                }}
-                                className="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200"
-                            >
-                                View Details
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditClient(client);
-                                }}
-                                className="flex-1 px-3 py-2 text-sm bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                            >
-                                Edit
-                            </button>
                         </div>
                     </div>
                 ))}
@@ -273,15 +281,6 @@ const Clients: React.FC = () => {
             {/* Add Client Modal */}
             {showAddModal && (
                 <AddClientModal onClose={() => setShowAddModal(false)} />
-            )}
-
-            {/* Client Details Modal */}
-            {selectedClient && (
-                <ClientDetailsModal
-                    client={selectedClient}
-                    mode={modalMode}
-                    onClose={() => setSelectedClient(null)}
-                />
             )}
         </div>
     );

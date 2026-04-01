@@ -14,6 +14,7 @@ export interface Payment {
     status: 'paid' | 'pending' | 'overdue';
     description?: string;
     paymentMethod?: string;
+    invoiceDocument?: string;
 }
 
 interface PaymentContextType {
@@ -22,6 +23,7 @@ interface PaymentContextType {
     updatePayment: (id: number, payment: Partial<Payment>) => void;
     deletePayment: (id: number) => void;
     getPayment: (id: number) => Payment | undefined;
+    updateClientNameInPayments: (oldClientName: string, newClientName: string, newProjectName?: string) => void;
 }
 
 const PaymentContext = createContext<PaymentContextType | undefined>(undefined);
@@ -44,83 +46,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setPayments(JSON.parse(savedPayments));
         } else {
             // Initialize with sample data
-            const samplePayments: Payment[] = [
-                {
-                    id: 1,
-                    clientName: 'Tech Solutions Inc',
-                    projectName: 'E-commerce Website',
-                    amount: 5000,
-                    date: '2024-03-25',
-                    installment: '3/5',
-                    totalInstallments: 5,
-                    currentInstallment: 3,
-                    remaining: '2 installments remaining',
-                    invoiceNumber: 'INV-2024-001',
-                    status: 'paid',
-                    description: 'Third installment for e-commerce development',
-                    paymentMethod: 'Bank Transfer'
-                },
-                {
-                    id: 2,
-                    clientName: 'StartupXYZ',
-                    projectName: 'Mobile App Development',
-                    amount: 3500,
-                    date: '2024-03-20',
-                    installment: '2/4',
-                    totalInstallments: 4,
-                    currentInstallment: 2,
-                    remaining: '2 installments remaining',
-                    invoiceNumber: 'INV-2024-002',
-                    status: 'paid',
-                    description: 'Second installment for mobile app development',
-                    paymentMethod: 'Credit Card'
-                },
-                {
-                    id: 3,
-                    clientName: 'Global Corp',
-                    projectName: 'Corporate Website',
-                    amount: 2800,
-                    date: '2024-03-15',
-                    installment: '4/4',
-                    totalInstallments: 4,
-                    currentInstallment: 4,
-                    remaining: 'Project Completed',
-                    invoiceNumber: 'INV-2024-003',
-                    status: 'paid',
-                    description: 'Final payment for corporate website',
-                    paymentMethod: 'Bank Transfer'
-                },
-                {
-                    id: 4,
-                    clientName: 'Business Solutions Ltd',
-                    projectName: 'CRM System',
-                    amount: 4200,
-                    date: '2024-03-10',
-                    installment: '1/3',
-                    totalInstallments: 3,
-                    currentInstallment: 1,
-                    remaining: '2 installments remaining',
-                    invoiceNumber: 'INV-2024-004',
-                    status: 'pending',
-                    description: 'First installment for CRM system development',
-                    paymentMethod: 'Bank Transfer'
-                },
-                {
-                    id: 5,
-                    clientName: 'Tech Solutions Inc',
-                    projectName: 'E-commerce Website',
-                    amount: 5000,
-                    date: '2024-02-15',
-                    installment: '2/5',
-                    totalInstallments: 5,
-                    currentInstallment: 2,
-                    remaining: '3 installments remaining',
-                    invoiceNumber: 'INV-2024-005',
-                    status: 'paid',
-                    description: 'Second installment for e-commerce development',
-                    paymentMethod: 'Bank Transfer'
-                },
-            ];
+            const samplePayments: Payment[] = [];
             setPayments(samplePayments);
             localStorage.setItem('payments', JSON.stringify(samplePayments));
         }
@@ -154,12 +80,28 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return payments.find(payment => payment.id === id);
     };
 
+    const updateClientNameInPayments = (oldClientName: string, newClientName: string, newProjectName?: string) => {
+        const updatedPayments = payments.map(payment => {
+            if (payment.clientName === oldClientName) {
+                return {
+                    ...payment,
+                    clientName: newClientName,
+                    ...(newProjectName && { projectName: newProjectName })
+                };
+            }
+            return payment;
+        });
+        setPayments(updatedPayments);
+        localStorage.setItem('payments', JSON.stringify(updatedPayments));
+    };
+
     const value = {
         payments,
         addPayment,
         updatePayment,
         deletePayment,
-        getPayment
+        getPayment,
+        updateClientNameInPayments
     };
 
     return <PaymentContext.Provider value={value}>{children}</PaymentContext.Provider>;

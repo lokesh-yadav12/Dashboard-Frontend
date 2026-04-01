@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useClients } from '../contexts/ClientContext';
+import { useToast } from '../contexts/ToastContext';
+import { uploadAPI } from '../services/api';
 
 interface AddClientModalProps {
     onClose: () => void;
@@ -7,9 +9,12 @@ interface AddClientModalProps {
 
 const AddClientModal: React.FC<AddClientModalProps> = ({ onClose }) => {
     const { addClient } = useClients();
+    const toast = useToast();
     const [formData, setFormData] = useState({
         clientName: '',
         projectName: '',
+        projectBoughtBy: '',
+        gstnNumber: '',
         email: '',
         address: '',
         contact: '',
@@ -17,6 +22,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ onClose }) => {
         status: 'development' as 'live' | 'development' | 'completed',
         lastPayment: '',
         lastMeetNote: '',
+        maintenanceStartDate: '',
         document: null as File | null,
         signedDocument: null as File | null,
     });
@@ -37,30 +43,55 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ onClose }) => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.clientName || !formData.projectName || !formData.email || !formData.contact) {
-            alert('Please fill in all required fields');
+        if (!formData.clientName || !formData.projectName || !formData.projectBoughtBy || !formData.gstnNumber || !formData.email || !formData.contact) {
+            toast.warning('Please fill in all required fields');
             return;
         }
 
-        // Add client using context
-        addClient({
-            clientName: formData.clientName,
-            projectName: formData.projectName,
-            email: formData.email,
-            contact: formData.contact,
-            address: formData.address,
-            startDate: formData.startDate,
-            status: formData.status,
-            lastPayment: formData.lastPayment || 'No payment yet',
-            lastMeetNote: formData.lastMeetNote || 'Initial meeting scheduled',
-            document: formData.document,
-            signedDocument: formData.signedDocument,
-        });
+        try {
+            let documentFileName = '';
+            let signedDocumentFileName = '';
 
-        onClose();
+            // Upload document if selected
+            if (formData.document) {
+                const response = await uploadAPI.uploadFile(formData.document, 'clientDocument');
+                documentFileName = response.data.data.fileName;
+            }
+
+            // Upload signed document if selected
+            if (formData.signedDocument) {
+                const response = await uploadAPI.uploadFile(formData.signedDocument, 'clientDocument');
+                signedDocumentFileName = response.data.data.fileName;
+            }
+
+            // Add client using context
+            addClient({
+                clientName: formData.clientName,
+                projectName: formData.projectName,
+                projectBoughtBy: formData.projectBoughtBy,
+                gstnNumber: formData.gstnNumber,
+                email: formData.email,
+                contact: formData.contact,
+                address: formData.address,
+                startDate: formData.startDate,
+                status: formData.status,
+                lastPayment: formData.lastPayment || 'No payment yet',
+                payments: [],
+                lastMeetNote: formData.lastMeetNote || 'Initial meeting scheduled',
+                maintenanceStartDate: formData.maintenanceStartDate,
+                document: documentFileName || undefined,
+                signedDocument: signedDocumentFileName || undefined,
+            });
+
+            toast.success('Client added successfully!');
+            onClose();
+        } catch (error: any) {
+            console.error('Error adding client:', error);
+            toast.error(`Error: ${error.response?.data?.message || error.message || 'Failed to add client'}`);
+        }
     };
 
     return (
@@ -113,6 +144,40 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ onClose }) => {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Enter project name"
+                            />
+                        </div>
+
+                        {/* Project Bought By */}
+                        <div>
+                            <label htmlFor="projectBoughtBy" className="block text-sm font-medium text-gray-700 mb-1">
+                                Project Bought By *
+                            </label>
+                            <input
+                                type="text"
+                                id="projectBoughtBy"
+                                name="projectBoughtBy"
+                                required
+                                value={formData.projectBoughtBy}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Person who purchased"
+                            />
+                        </div>
+
+                        {/* GSTN Number */}
+                        <div>
+                            <label htmlFor="gstnNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                GSTN Number *
+                            </label>
+                            <input
+                                type="text"
+                                id="gstnNumber"
+                                name="gstnNumber"
+                                required
+                                value={formData.gstnNumber}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="e.g., 29ABCDE1234F1Z5"
                             />
                         </div>
 
@@ -182,6 +247,23 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ onClose }) => {
                                 <option value="completed">Completed</option>
                             </select>
                         </div>
+
+                        {/* Maintenance Start Date - Only for Live/Completed */}
+                        {(formData.status === 'live' || formData.status === 'completed') && (
+                            <div>
+                                <label htmlFor="maintenanceStartDate" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Maintenance Start Date
+                                </label>
+                                <input
+                                    type="date"
+                                    id="maintenanceStartDate"
+                                    name="maintenanceStartDate"
+                                    value={formData.maintenanceStartDate}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Address */}

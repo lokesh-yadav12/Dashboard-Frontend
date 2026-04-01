@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
@@ -11,7 +11,14 @@ const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
         password: ''
     });
     const [error, setError] = useState('');
-    const { login, isLoading } = useAuth();
+    const { login, isLoading, user } = useAuth();
+
+    // Redirect to dashboard if user is already logged in
+    useEffect(() => {
+        if (user) {
+            window.location.href = '/dashboard';
+        }
+    }, [user]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

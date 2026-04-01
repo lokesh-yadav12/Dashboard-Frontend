@@ -1,18 +1,36 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export interface MeetingNote {
+    id: number;
+    date: string;
+    note: string;
+}
+
+export interface ClientPayment {
+    id: number;
+    amount: string;
+    date: string;
+}
+
 export interface Client {
     id: number;
     clientName: string;
     projectName: string;
+    projectBoughtBy: string;
+    gstnNumber: string;
     startDate: string;
     status: 'live' | 'development' | 'completed';
     lastPayment: string;
+    payments: ClientPayment[];
+    totalInstallments?: number;
     lastMeetNote: string;
+    meetingNotes?: MeetingNote[];
+    maintenanceStartDate?: string;
     email: string;
     contact: string;
     address: string;
-    document?: File | null;
-    signedDocument?: File | null;
+    document?: string;
+    signedDocument?: string;
 }
 
 interface ClientContextType {
@@ -43,56 +61,7 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setClients(JSON.parse(savedClients));
         } else {
             // Initialize with sample data
-            const sampleClients: Client[] = [
-                {
-                    id: 1,
-                    clientName: 'Tech Solutions Inc',
-                    projectName: 'E-commerce Website',
-                    startDate: '2024-01-15',
-                    status: 'live',
-                    lastPayment: '₹5,000 - Jan 15, 2024',
-                    lastMeetNote: 'Discussed new features for Q2',
-                    email: 'contact@techsolutions.com',
-                    contact: '+1 (555) 123-4567',
-                    address: '123 Tech Street, Silicon Valley, CA'
-                },
-                {
-                    id: 2,
-                    clientName: 'StartupXYZ',
-                    projectName: 'Mobile App Development',
-                    startDate: '2024-02-01',
-                    status: 'development',
-                    lastPayment: '₹3,500 - Feb 20, 2024',
-                    lastMeetNote: 'UI/UX review completed',
-                    email: 'hello@startupxyz.com',
-                    contact: '+1 (555) 234-5678',
-                    address: '456 Innovation Ave, New York, NY'
-                },
-                {
-                    id: 3,
-                    clientName: 'Global Corp',
-                    projectName: 'Corporate Website',
-                    startDate: '2024-01-10',
-                    status: 'completed',
-                    lastPayment: '₹2,800 - Mar 10, 2024',
-                    lastMeetNote: 'Final delivery and handover',
-                    email: 'info@globalcorp.com',
-                    contact: '+1 (555) 345-6789',
-                    address: '789 Business Blvd, Chicago, IL'
-                },
-                {
-                    id: 4,
-                    clientName: 'Business Solutions Ltd',
-                    projectName: 'CRM System',
-                    startDate: '2024-03-01',
-                    status: 'development',
-                    lastPayment: '₹4,200 - Mar 25, 2024',
-                    lastMeetNote: 'Database optimization discussion',
-                    email: 'support@businesssolutions.com',
-                    contact: '+1 (555) 456-7890',
-                    address: '321 Enterprise Way, Austin, TX'
-                },
-            ];
+            const sampleClients: Client[] = [];
             setClients(sampleClients);
             localStorage.setItem('clients', JSON.stringify(sampleClients));
         }

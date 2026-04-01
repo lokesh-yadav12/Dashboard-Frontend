@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTeam } from '../contexts/TeamContext';
+import { uploadAPI } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface AddTeamMemberModalProps {
     onClose: () => void;
@@ -7,7 +9,9 @@ interface AddTeamMemberModalProps {
 
 const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({ onClose }) => {
     const { addTeamMember } = useTeam();
+    const toast = useToast();
     const [formData, setFormData] = useState({
+        employeeId: '',
         name: '',
         role: '',
         email: '',
@@ -19,6 +23,9 @@ const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({ onClose }) => {
         skills: '',
         joinDate: new Date().toISOString().split('T')[0],
         projects: 0,
+        highestQualification: '',
+        qualificationDocument: null as File | null,
+        profileImage: null as File | null,
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -29,37 +36,70 @@ const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({ onClose }) => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'qualificationDocument' | 'profileImage') => {
+        const file = e.target.files?.[0] || null;
+        setFormData(prev => ({
+            ...prev,
+            [field]: file
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.role || !formData.email || !formData.phone) {
-            alert('Please fill in all required fields');
+        if (!formData.employeeId || !formData.name || !formData.role || !formData.email || !formData.phone) {
+            toast.warning('Please fill in all required fields');
             return;
         }
 
-        // Generate avatar from name
-        const nameParts = formData.name.split(' ');
-        const avatar = nameParts.length > 1
-            ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
-            : formData.name.substring(0, 2).toUpperCase();
+        try {
+            // Generate avatar from name
+            const nameParts = formData.name.split(' ');
+            const avatar = nameParts.length > 1
+                ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
+                : formData.name.substring(0, 2).toUpperCase();
 
-        // Add team member using context
-        addTeamMember({
-            name: formData.name,
-            role: formData.role,
-            email: formData.email,
-            phone: formData.phone,
-            department: formData.department,
-            status: formData.status,
-            address: formData.address,
-            salary: formData.salary,
-            skills: formData.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
-            joinDate: formData.joinDate,
-            projects: formData.projects,
-            avatar: avatar,
-        });
+            let profileImageName = '';
+            let qualificationDocName = '';
 
-        onClose();
+            // Upload profile image if selected
+            if (formData.profileImage) {
+                const response = await uploadAPI.uploadFile(formData.profileImage, 'profileImage');
+                profileImageName = response.data.data.fileName;
+            }
+
+            // Upload qualification document if selected
+            if (formData.qualificationDocument) {
+                const response = await uploadAPI.uploadFile(formData.qualificationDocument, 'qualificationDocument');
+                qualificationDocName = response.data.data.fileName;
+            }
+
+            // Add team member using context
+            addTeamMember({
+                employeeId: formData.employeeId,
+                name: formData.name,
+                role: formData.role,
+                email: formData.email,
+                phone: formData.phone,
+                department: formData.department,
+                status: formData.status,
+                address: formData.address,
+                salary: formData.salary,
+                skills: formData.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
+                joinDate: formData.joinDate,
+                projects: formData.projects,
+                avatar: avatar,
+                highestQualification: formData.highestQualification,
+                qualificationDocument: qualificationDocName || undefined,
+                profileImage: profileImageName || undefined,
+            });
+
+            toast.success('Team member added successfully!');
+            onClose();
+        } catch (error: any) {
+            console.error('Error adding team member:', error);
+            toast.error(`Error: ${error.response?.data?.message || error.message || 'Failed to add team member'}`);
+        }
     };
 
     return (
@@ -81,6 +121,23 @@ const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({ onClose }) => {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Employee ID */}
+                        <div>
+                            <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 mb-1">
+                                Employee ID *
+                            </label>
+                            <input
+                                type="text"
+                                id="employeeId"
+                                name="employeeId"
+                                required
+                                value={formData.employeeId}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="e.g., EMP001"
+                            />
+                        </div>
+
                         {/* Name */}
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -249,6 +306,60 @@ const AddTeamMemberModal: React.FC<AddTeamMemberModalProps> = ({ onClose }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="e.g., React, Node.js, TypeScript, MongoDB"
                         />
+                    </div>
+
+                    {/* Highest Qualification */}
+                    <div>
+                        <label htmlFor="highestQualification" className="block text-sm font-medium text-gray-700 mb-1">
+                            Highest Qualification
+                        </label>
+                        <input
+                            type="text"
+                            id="highestQualification"
+                            name="highestQualification"
+                            value={formData.highestQualification}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="e.g., Master of Computer Science"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Qualification Document */}
+                        <div>
+                            <label htmlFor="qualificationDocument" className="block text-sm font-medium text-gray-700 mb-1">
+                                Qualification Document
+                            </label>
+                            <input
+                                type="file"
+                                id="qualificationDocument"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                onChange={(e) => handleFileChange(e, 'qualificationDocument')}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG</p>
+                            {formData.qualificationDocument && (
+                                <p className="text-xs text-green-600 mt-1">✓ {formData.qualificationDocument.name}</p>
+                            )}
+                        </div>
+
+                        {/* Profile Image */}
+                        <div>
+                            <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700 mb-1">
+                                Profile Image
+                            </label>
+                            <input
+                                type="file"
+                                id="profileImage"
+                                accept=".jpg,.jpeg,.png"
+                                onChange={(e) => handleFileChange(e, 'profileImage')}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">JPG, PNG</p>
+                            {formData.profileImage && (
+                                <p className="text-xs text-green-600 mt-1">✓ {formData.profileImage.name}</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Buttons */}

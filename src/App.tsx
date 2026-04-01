@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ClientProvider } from './contexts/ClientContext';
 import { TeamProvider } from './contexts/TeamContext';
 import { PaymentProvider } from './contexts/PaymentContext';
+import { ToastProvider } from './contexts/ToastContext';
 import AuthWrapper from './components/AuthWrapper';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
+import ClientDetails from './pages/ClientDetails';
 import PaymentHistory from './pages/PaymentHistory';
+import PaymentDetails from './pages/PaymentDetails';
 import Team from './pages/Team';
+import TeamMemberDetails from './pages/TeamMemberDetails';
 
 function App() {
     return (
@@ -16,9 +21,13 @@ function App() {
             <ClientProvider>
                 <TeamProvider>
                     <PaymentProvider>
-                        <AuthWrapper>
-                            <DashboardContent />
-                        </AuthWrapper>
+                        <ToastProvider>
+                            <Router>
+                                <AuthWrapper>
+                                    <DashboardContent />
+                                </AuthWrapper>
+                            </Router>
+                        </ToastProvider>
                     </PaymentProvider>
                 </TeamProvider>
             </ClientProvider>
@@ -27,50 +36,22 @@ function App() {
 }
 
 function DashboardContent() {
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'dashboard':
-                return <Dashboard />;
-            case 'clients':
-                return <Clients />;
-            case 'payment-history':
-                return <PaymentHistory />;
-            case 'team':
-                return <Team />;
-            default:
-                return <Dashboard />;
-        }
-    };
-
     return (
         <div className="flex h-screen bg-gray-50">
-            <Sidebar
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-            />
+            <Sidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <header className="bg-white shadow-sm border-b border-gray-200 md:hidden">
-                    <div className="flex items-center justify-between px-4 py-3">
-                        <button
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="text-gray-600 hover:text-gray-900"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                        <h1 className="text-xl font-semibold text-gray-900">Business Dashboard</h1>
-                    </div>
-                </header>
-
                 <main className="flex-1 overflow-auto">
-                    {renderContent()}
+                    <Routes>
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/clients" element={<Clients />} />
+                        <Route path="/clients/:id" element={<ClientDetails />} />
+                        <Route path="/payment-history" element={<PaymentHistory />} />
+                        <Route path="/payments/:id" element={<PaymentDetails />} />
+                        <Route path="/team" element={<Team />} />
+                        <Route path="/team/:id" element={<TeamMemberDetails />} />
+                    </Routes>
                 </main>
             </div>
         </div>

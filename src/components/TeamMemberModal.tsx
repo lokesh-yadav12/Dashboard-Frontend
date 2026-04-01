@@ -294,7 +294,7 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, mode, onClose
                                                 </p>
                                                 {member.salary && (
                                                     <p className="text-sm text-gray-900">
-                                                        <span className="font-medium">Salary:</span> ${member.salary.toLocaleString()}
+                                                        <span className="font-medium">Salary:</span> ₹{member.salary.toLocaleString()}
                                                     </p>
                                                 )}
                                             </div>

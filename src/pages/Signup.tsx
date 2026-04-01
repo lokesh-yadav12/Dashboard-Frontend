@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SignupProps {
@@ -13,7 +13,14 @@ const Signup: React.FC<SignupProps> = ({ onSwitchToLogin }) => {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
-    const { signup, isLoading } = useAuth();
+    const { signup, isLoading, user } = useAuth();
+
+    // Redirect to dashboard if user is already logged in
+    useEffect(() => {
+        if (user) {
+            window.location.href = '/dashboard';
+        }
+    }, [user]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -58,7 +65,7 @@ const Signup: React.FC<SignupProps> = ({ onSwitchToLogin }) => {
                             <span className="text-2xl text-white font-bold">BH</span>
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
-                        <p className="mt-2 text-sm text-gray-600">Join BusinessHub and manage your business</p>
+                        <p className="mt-2 text-sm text-gray-600">Join Elite8Hub and manage your business</p>
                     </div>
 
                     {/* Form */}
