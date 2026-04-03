@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { usePayments } from '../contexts/PaymentContext';
 import { uploadAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
+import ClientFilterDropdown from '../components/ClientFilterDropdown';
 
 const PaymentHistory: React.FC = () => {
     const { payments, updatePayment } = usePayments();
@@ -13,6 +14,7 @@ const PaymentHistory: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [groupBy, setGroupBy] = useState<'month' | 'client'>('month');
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+    const [selectedClient, setSelectedClient] = useState<string>('all');
     const [editingPaymentId, setEditingPaymentId] = useState<number | null>(null);
     const [editingPaymentData, setEditingPaymentData] = useState({
         amount: '',
@@ -113,15 +115,29 @@ const PaymentHistory: React.FC = () => {
 
 
     const filterPayments = () => {
-        if (searchQuery === '') {
-            return payments;
+        let filtered = payments;
+
+        // Filter by search query
+        if (searchQuery !== '') {
+            filtered = filtered.filter(payment =>
+                payment.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                payment.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                payment.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase())
+            );
         }
 
-        return payments.filter(payment =>
-            payment.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            payment.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            payment.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        // Filter by selected client
+        if (selectedClient !== 'all') {
+            filtered = filtered.filter(payment => payment.clientName === selectedClient);
+        }
+
+        return filtered;
+    };
+
+    // Get unique client names for the dropdown
+    const getUniqueClients = () => {
+        const clientNames = [...new Set(payments.map(p => p.clientName))];
+        return clientNames.sort();
     };
 
     // Group payments by month
@@ -376,18 +392,20 @@ const PaymentHistory: React.FC = () => {
                 </div>
             </div>
 
-            {/* Search Bar with Filters */}
-            <div className="flex gap-3 items-center">
+            {/* Search Bar with Filters - All in One Line */}
+            <div className="flex gap-3 items-end">
+                {/* Main Search Bar */}
                 <div className="relative flex-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Search</label>
                     <input
                         type="text"
-                        placeholder="Search by client name, project, or invoice number..."
+                        placeholder="Search by client, project, or invoice..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <svg
-                        className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                        className="absolute left-3 bottom-2.5 h-5 w-5 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -402,7 +420,7 @@ const PaymentHistory: React.FC = () => {
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                            className="absolute right-3 bottom-2.5 text-gray-400 hover:text-gray-600"
                         >
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -411,23 +429,38 @@ const PaymentHistory: React.FC = () => {
                     )}
                 </div>
 
-                {/* Filters on the right side */}
-                <select
-                    value={groupBy}
-                    onChange={(e) => setGroupBy(e.target.value as 'month' | 'client')}
-                    className="pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
-                >
-                    <option value="month">Group by Month</option>
-                    <option value="client">Group by Client</option>
-                </select>
-                <select
-                    value={viewType}
-                    onChange={(e) => setViewType(e.target.value as 'monthly' | 'yearly')}
-                    className="pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
-                >
-                    <option value="monthly">Monthly View</option>
-                    <option value="yearly">Yearly View</option>
-                </select>
+                {/* Client Filter Dropdown with Search */}
+                <ClientFilterDropdown
+                    clients={getUniqueClients()}
+                    selectedClient={selectedClient}
+                    onSelectClient={setSelectedClient}
+                />
+
+                {/* Group By Filter */}
+                <div className="min-w-[150px]">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Group By</label>
+                    <select
+                        value={groupBy}
+                        onChange={(e) => setGroupBy(e.target.value as 'month' | 'client')}
+                        className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
+                    >
+                        <option value="month">Month</option>
+                        <option value="client">Client</option>
+                    </select>
+                </div>
+
+                {/* View Type Filter */}
+                <div className="min-w-[150px]">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">View Type</label>
+                    <select
+                        value={viewType}
+                        onChange={(e) => setViewType(e.target.value as 'monthly' | 'yearly')}
+                        className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
+                    >
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
             </div>
 
 

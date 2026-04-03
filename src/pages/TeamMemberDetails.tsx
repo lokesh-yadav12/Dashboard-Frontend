@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useTeam } from '../contexts/TeamContext';
+import { useTeam, TeamDocument } from '../contexts/TeamContext';
 import { uploadAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
+import PromptModal from '../components/PromptModal';
+import ConfirmModal from '../components/ConfirmModal';
+
+interface DocumentWithName {
+    file: File;
+    customName: string;
+}
 
 const TeamMemberDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,7 +20,35 @@ const TeamMemberDetails: React.FC = () => {
     const member = teamMembers.find(m => m.id === Number(id));
     const [isEditing, setIsEditing] = useState(false);
     const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-    const [qualificationDocFile, setQualificationDocFile] = useState<File | null>(null);
+    const [existingDocuments, setExistingDocuments] = useState<TeamDocument[]>(member?.documents || []);
+    const [newDocuments, setNewDocuments] = useState<DocumentWithName[]>([]);
+    
+    // Modal states
+    const [promptModal, setPromptModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        defaultValue: string;
+        onConfirm: (value: string) => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        defaultValue: '',
+        onConfirm: () => {}
+    });
+    
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {}
+    });
 
     const [formData, setFormData] = useState({
         employeeId: member?.employeeId || '',
@@ -54,18 +89,87 @@ const TeamMemberDetails: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'profileImage' | 'qualificationDocument') => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
-        if (field === 'profileImage') {
-            setProfileImageFile(file);
+        setProfileImageFile(file);
+        if (file) {
+            setFormData(prev => ({ ...prev, profileImage: file.name }));
+        }
+    };
+
+    const handleAddDocument = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+        input.onchange = (e: Event) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
             if (file) {
-                setFormData(prev => ({ ...prev, profileImage: file.name }));
+                setPromptModal({
+                    isOpen: true,
+                    title: 'Name Your Document',
+                    message: 'Enter a custom name for this document:',
+                    defaultValue: file.name.split('.')[0],
+                    onConfirm: (customName: string) => {
+                        setNewDocuments(prev => [...prev, { file, customName }]);
+                        setPromptModal(prev => ({ ...prev, isOpen: false }));
+                        toast.success('Document added successfully!');
+                    }
+                });
             }
-        } else {
-            setQualificationDocFile(file);
-            if (file) {
-                setFormData(prev => ({ ...prev, qualificationDocument: file.name }));
+        };
+        input.click();
+    };
+
+    const handleRemoveDocument = (index: number) => {
+        setNewDocuments(prev => prev.filter((_, i) => i !== index));
+        toast.info('Document removed');
+    };
+
+    const handleEditDocumentName = (index: number) => {
+        setPromptModal({
+            isOpen: true,
+            title: 'Rename Document',
+            message: 'Enter a new name for this document:',
+            defaultValue: newDocuments[index].customName,
+            onConfirm: (newName: string) => {
+                setNewDocuments(prev => prev.map((doc, i) => 
+                    i === index ? { ...doc, customName: newName } : doc
+                ));
+                setPromptModal(prev => ({ ...prev, isOpen: false }));
+                toast.success('Document renamed successfully!');
             }
+        });
+    };
+
+    const handleRemoveExistingDocument = (docId: number) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Remove Document',
+            message: 'Are you sure you want to remove this document?',
+            onConfirm: () => {
+                setExistingDocuments(prev => prev.filter(doc => doc.id !== docId));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                toast.success('Document removed successfully!');
+            }
+        });
+    };
+
+    const handleEditExistingDocumentName = (docId: number) => {
+        const doc = existingDocuments.find(d => d.id === docId);
+        if (doc) {
+            setPromptModal({
+                isOpen: true,
+                title: 'Rename Document',
+                message: 'Enter a new name for this document:',
+                defaultValue: doc.name,
+                onConfirm: (newName: string) => {
+                    setExistingDocuments(prev => prev.map(d => 
+                        d.id === docId ? { ...d, name: newName } : d
+                    ));
+                    setPromptModal(prev => ({ ...prev, isOpen: false }));
+                    toast.success('Document renamed successfully!');
+                }
+            });
         }
     };
 
@@ -87,20 +191,26 @@ const TeamMemberDetails: React.FC = () => {
                 }
             }
 
-            // Upload qualification document if new file selected
-            if (qualificationDocFile) {
-                try {
-                    const response = await uploadAPI.uploadFile(qualificationDocFile, 'qualificationDocument');
-                    updatedData.qualificationDocument = response.data.data.fileName;
-                } catch (uploadError: any) {
-                    console.error('Qualification document upload error:', uploadError);
-                    toast.error(`Error uploading qualification document: ${uploadError.response?.data?.message || uploadError.message}`);
-                    return;
-                }
+            const uploadedDocuments: TeamDocument[] = [];
+
+            // Upload all new documents
+            for (const doc of newDocuments) {
+                const response = await uploadAPI.uploadFile(doc.file, 'qualificationDocument');
+                uploadedDocuments.push({
+                    id: Date.now() + Math.random(),
+                    name: doc.customName,
+                    fileName: response.data.data.fileName,
+                    uploadDate: new Date().toISOString()
+                });
             }
+
+            // Merge existing documents with newly uploaded ones
+            const allDocuments = [...existingDocuments, ...uploadedDocuments];
+            updatedData.documents = allDocuments;
 
             updateTeamMember(member.id, updatedData);
             setIsEditing(false);
+            setNewDocuments([]);
             toast.success('Team member updated successfully!');
         } catch (error: any) {
             console.error('Error updating team member:', error);
@@ -161,6 +271,26 @@ const TeamMemberDetails: React.FC = () => {
 
     return (
         <div className="p-6 space-y-6">
+            {/* Modals */}
+            <PromptModal
+                isOpen={promptModal.isOpen}
+                title={promptModal.title}
+                message={promptModal.message}
+                defaultValue={promptModal.defaultValue}
+                onConfirm={promptModal.onConfirm}
+                onCancel={() => setPromptModal(prev => ({ ...prev, isOpen: false }))}
+                placeholder="Enter document name"
+            />
+            
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                type="danger"
+            />
+            
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -219,7 +349,7 @@ const TeamMemberDetails: React.FC = () => {
                                     <input
                                         type="file"
                                         accept=".jpg,.jpeg,.png"
-                                        onChange={(e) => handleFileChange(e, 'profileImage')}
+                                        onChange={handleFileChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">JPG, PNG (Max 5MB)</p>
@@ -244,18 +374,96 @@ const TeamMemberDetails: React.FC = () => {
                         </div>
                         <div className="mt-6"><label className="block text-sm font-medium text-gray-700 mb-2">Highest Qualification</label><input type="text" name="highestQualification" value={formData.highestQualification} onChange={handleInputChange} className="w-full px-4 py-3 border rounded-lg" /></div>
                         
-                        {/* Qualification Document Upload */}
+                        {/* Documents Section */}
                         <div className="mt-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Qualification Document</label>
-                            <input
-                                type="file"
-                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                onChange={(e) => handleFileChange(e, 'qualificationDocument')}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG</p>
-                            {formData.qualificationDocument && (
-                                <p className="text-xs text-green-600 mt-1">✓ {formData.qualificationDocument}</p>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Documents
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={handleAddDocument}
+                                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    + Add Document
+                                </button>
+                            </div>
+
+                            {/* Existing Documents */}
+                            {existingDocuments.length > 0 && (
+                                <div className="mb-3">
+                                    <p className="text-xs text-gray-600 mb-2 font-medium">Existing Documents:</p>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                                        {existingDocuments.map((doc) => (
+                                            <div key={doc.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                                <div className="flex items-center gap-2 flex-1">
+                                                    <span className="text-blue-600">📄</span>
+                                                    <span className="text-sm font-medium text-gray-900">{doc.name}</span>
+                                                    <span className="text-xs text-gray-500">
+                                                        ({new Date(doc.uploadDate).toLocaleDateString()})
+                                                    </span>
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEditExistingDocumentName(doc.id)}
+                                                        className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                                                    >
+                                                        ✏️ Rename
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExistingDocument(doc.id)}
+                                                        className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                                    >
+                                                        🗑️ Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* New Documents */}
+                            {newDocuments.length > 0 && (
+                                <div>
+                                    <p className="text-xs text-gray-600 mb-2 font-medium">New Documents to Upload:</p>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto border border-green-200 rounded-lg p-3 bg-green-50">
+                                        {newDocuments.map((doc, index) => (
+                                            <div key={index} className="flex items-center justify-between bg-white p-2 rounded">
+                                                <div className="flex items-center gap-2 flex-1">
+                                                    <span className="text-green-600">📄</span>
+                                                    <span className="text-sm font-medium text-gray-900">{doc.customName}</span>
+                                                    <span className="text-xs text-gray-500">({doc.file.name})</span>
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEditDocumentName(index)}
+                                                        className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                                                    >
+                                                        ✏️ Rename
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveDocument(index)}
+                                                        className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                                    >
+                                                        🗑️ Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {existingDocuments.length === 0 && newDocuments.length === 0 && (
+                                <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                                    <p className="text-sm text-gray-500">No documents added yet</p>
+                                    <p className="text-xs text-gray-400 mt-1">Click "Add Document" to upload files</p>
+                                </div>
                             )}
                         </div>
 
@@ -311,17 +519,29 @@ const TeamMemberDetails: React.FC = () => {
                                 <div><p className="text-sm text-gray-600">Phone</p><p>{member.phone}</p></div>
                                 {member.salary && <div><p className="text-sm text-gray-600">Salary</p><p>₹{member.salary}</p></div>}
                                 {member.highestQualification && <div><p className="text-sm text-gray-600">Highest Qualification</p><p className="font-semibold">{member.highestQualification}</p></div>}
-                                {member.qualificationDocument && (
+                                {/* {member.documents && member.documents.length > 0 && (
                                     <div>
-                                        <p className="text-sm text-gray-600">Qualification Document</p>
-                                        <button
-                                            onClick={() => openDocument(member.qualificationDocument!)}
-                                            className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1 underline"
-                                        >
-                                            <span>📄</span> {member.qualificationDocument}
-                                        </button>
+                                        <p className="text-sm text-gray-600 mb-2">Documents</p>
+                                        <div className="space-y-2">
+                                            {member.documents.map((doc) => (
+                                                <button
+                                                    key={doc.id}
+                                                    onClick={() => {
+                                                        const fileUrl = uploadAPI.viewFile('qualificationDocument', doc.fileName);
+                                                        window.open(fileUrl, '_blank');
+                                                    }}
+                                                    className="w-full text-left text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2  p-2 rounded  transition-colors"
+                                                >
+                                                    <span>📄</span>
+                                                    <span className="font-medium">{doc.name}</span>
+                                                    <span className="text-xs text-gray-500 ml-auto">
+                                                        {new Date(doc.uploadDate).toLocaleDateString()}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                )}
+                                )} */}
                                 {member.profileImage && (
                                     <div>
                                         <p className="text-sm text-gray-600">Profile Image</p>
@@ -334,12 +554,42 @@ const TeamMemberDetails: React.FC = () => {
                         </div>
                         <div className="bg-white border rounded-xl p-6">
                             <h4 className="text-lg font-bold mb-4">💼 Work Details</h4>
-                            <div className="space-y-4">
+                            <div className="space-y-4 pb-6">
                                 <div><p className="text-sm text-gray-600">Department</p><span className={`px-3 py-1 rounded-full text-sm ${getDepartmentColor(member.department)}`}>{member.department}</span></div>
                                 <div><p className="text-sm text-gray-600">Status</p><span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(member.status)}`}>{member.status.toUpperCase()}</span></div>
                                 <div><p className="text-sm text-gray-600">Active Projects</p><p>{member.projects} projects</p></div>
                             </div>
+
+                            {member.documents && member.documents.length > 0 && (
+                                    <div>
+                                        <p className="text-md text-gray-600 mb-2">Documents</p>
+                                        <div className="space-y-2">
+                                            {member.documents.map((doc) => (
+                                                <button
+                                                    key={doc.id}
+                                                    onClick={() => {
+                                                        const fileUrl = uploadAPI.viewFile('qualificationDocument', doc.fileName);
+                                                        window.open(fileUrl, '_blank');
+                                                    }}
+                                                    className="w-full text-left text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2  p-2 rounded  transition-colors"
+                                                >
+                                                    <span>📄</span>
+                                                    <span className="font-medium">{doc.name}</span>
+                                                    <span className="text-xs text-gray-500 ml-auto">
+                                                        {new Date(doc.uploadDate).toLocaleDateString()}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                         </div>
+
+                        {/* yaha pe aayega niche */}
+                        
+
+
+
                     </div>
 
                     {member.skills && member.skills.length > 0 && (

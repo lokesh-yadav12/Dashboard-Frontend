@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export interface ClientDocument {
+    id: number;
+    name: string;
+    fileName: string;
+    uploadDate: string;
+}
+
 export interface MeetingNote {
     id: number;
     date: string;
@@ -31,6 +38,7 @@ export interface Client {
     address: string;
     document?: string;
     signedDocument?: string;
+    documents?: ClientDocument[];
 }
 
 interface ClientContextType {

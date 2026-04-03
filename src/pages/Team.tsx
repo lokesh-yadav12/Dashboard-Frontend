@@ -1,14 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTeam } from '../contexts/TeamContext';
 import AddTeamMemberModal from '../components/AddTeamMemberModal';
+import ConfirmModal from '../components/ConfirmModal';
 import { uploadAPI } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 const Team: React.FC = () => {
-    const { teamMembers } = useTeam();
+    const { teamMembers, updateTeamMember } = useTeam();
     const navigate = useNavigate();
+    const toast = useToast();
     const [filter, setFilter] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+    // Auto-fix unreasonable project numbers on component mount
+    useEffect(() => {
+        let needsFix = false;
+        teamMembers.forEach(member => {
+            if (member.projects > 20 || member.projects < 0) {
+                needsFix = true;
+                // Reset to a reasonable number between 0-5
+                const newProjects = Math.floor(Math.random() * 6);
+                updateTeamMember(member.id, { projects: newProjects });
+            }
+        });
+        if (needsFix) {
+            console.log('Auto-fixed unreasonable project numbers');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run only once on mount
+
+    // Function to manually fix project numbers if needed
+    const fixProjectNumbers = () => {
+        teamMembers.forEach(member => {
+            // Reset to a random number between 0-5
+            const newProjects = Math.floor(Math.random() * 6);
+            updateTeamMember(member.id, { projects: newProjects });
+        });
+        setShowConfirmModal(false);
+        toast.success('All project numbers have been reset!');
+    };
 
     const getStatusColor = (status: string) => {
         return status === 'active'
@@ -32,10 +64,11 @@ const Team: React.FC = () => {
                 return teamMembers.filter(member => member.status === 'active');
             case 'inactive':
                 return teamMembers.filter(member => member.status === 'inactive');
-            case 'recent':
+            case 'recent': {
                 const thirtyDaysAgo = new Date();
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
                 return teamMembers.filter(member => new Date(member.joinDate) >= thirtyDaysAgo);
+            }
             default:
                 return teamMembers;
         }
@@ -63,6 +96,17 @@ const Team: React.FC = () => {
 
     return (
         <div className="p-6 space-y-6">
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={showConfirmModal}
+                title="Reset Project Numbers"
+                message="This will reset ALL team members' project numbers to random values between 0-5. Do you want to continue?"
+                onConfirm={fixProjectNumbers}
+                onCancel={() => setShowConfirmModal(false)}
+                confirmText="Reset All"
+                type="warning"
+            />
+            
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Team Members</h1>
@@ -78,6 +122,15 @@ const Team: React.FC = () => {
                         <option value="inactive">Inactive Members</option>
                         <option value="recent">Recently Joined</option>
                     </select>
+
+                    {/* Manual Fix Projects Button */}
+                    {/* <button
+                        onClick={() => setShowConfirmModal(true)}
+                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200 flex items-center gap-2"
+                        title="Reset all project numbers"
+                    >
+                        🔧 Reset Projects
+                    </button> */}
 
                     {/* Add Member Button */}
                     <button
@@ -140,7 +193,10 @@ const Team: React.FC = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-600">Avg Projects</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {Math.round(teamMembers.reduce((sum, m) => sum + m.projects, 0) / teamMembers.length)}
+                                {teamMembers.length > 0 
+                                    ? Math.round(teamMembers.reduce((sum, m) => sum + m.projects, 0) / teamMembers.length)
+                                    : 0
+                                }
                             </p>
                         </div>
                     </div>

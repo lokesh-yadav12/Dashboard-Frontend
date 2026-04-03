@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useClients, MeetingNote, ClientPayment } from '../contexts/ClientContext';
+import { useClients, MeetingNote, ClientPayment, ClientDocument } from '../contexts/ClientContext';
 import { usePayments } from '../contexts/PaymentContext';
 import { uploadAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
+import PromptModal from '../components/PromptModal';
+import ConfirmModal from '../components/ConfirmModal';
+
+interface DocumentWithName {
+    file: File;
+    customName: string;
+}
 
 const ClientDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -16,10 +23,35 @@ const ClientDetails: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [showAddNoteForm, setShowAddNoteForm] = useState(false);
-    const [documentFile, setDocumentFile] = useState<File | null>(null);
-    const [signedDocumentFile, setSignedDocumentFile] = useState<File | null>(null);
     const [showPaymentHistory, setShowPaymentHistory] = useState(false);
     const [showMeetingNotes, setShowMeetingNotes] = useState(false);
+    
+    // Modal states
+    const [promptModal, setPromptModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        defaultValue: string;
+        onConfirm: (value: string) => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        defaultValue: '',
+        onConfirm: () => {}
+    });
+    
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {}
+    });
     const [editingPaymentId, setEditingPaymentId] = useState<number | null>(null);
     const [editingPaymentData, setEditingPaymentData] = useState<{
         amount: string;
@@ -45,6 +77,9 @@ const ClientDetails: React.FC = () => {
         lastMeetNote: client?.lastMeetNote || '',
         maintenanceStartDate: client?.maintenanceStartDate || '',
     });
+
+    const [existingDocuments, setExistingDocuments] = useState<ClientDocument[]>(client?.documents || []);
+    const [newDocuments, setNewDocuments] = useState<DocumentWithName[]>([]);
 
     const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
     const [editingNoteText, setEditingNoteText] = useState('');
@@ -151,12 +186,19 @@ const ClientDetails: React.FC = () => {
 
     const handleDeleteNote = (noteId: number) => {
         if (!client) return;
-        if (!confirm('Are you sure you want to delete this meeting note?')) return;
-
-        const updatedNotes = client.meetingNotes?.filter(note => note.id !== noteId);
-
-        updateClient(client.id, {
-            meetingNotes: updatedNotes
+        
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Meeting Note',
+            message: 'Are you sure you want to delete this meeting note? This action cannot be undone.',
+            onConfirm: () => {
+                const updatedNotes = client.meetingNotes?.filter(note => note.id !== noteId);
+                updateClient(client.id, {
+                    meetingNotes: updatedNotes
+                });
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                toast.success('Meeting note deleted successfully!');
+            }
         });
     };
 
@@ -204,6 +246,82 @@ const ClientDetails: React.FC = () => {
         setEditingPaymentData({ amount: '', date: '', status: 'paid' });
     };
 
+    const handleAddDocument = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+        input.onchange = (e: Event) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                setPromptModal({
+                    isOpen: true,
+                    title: 'Name Your Document',
+                    message: 'Enter a custom name for this document:',
+                    defaultValue: file.name.split('.')[0],
+                    onConfirm: (customName: string) => {
+                        setNewDocuments(prev => [...prev, { file, customName }]);
+                        setPromptModal(prev => ({ ...prev, isOpen: false }));
+                        toast.success('Document added successfully!');
+                    }
+                });
+            }
+        };
+        input.click();
+    };
+
+    const handleRemoveDocument = (index: number) => {
+        setNewDocuments(prev => prev.filter((_, i) => i !== index));
+        toast.info('Document removed');
+    };
+
+    const handleEditDocumentName = (index: number) => {
+        setPromptModal({
+            isOpen: true,
+            title: 'Rename Document',
+            message: 'Enter a new name for this document:',
+            defaultValue: newDocuments[index].customName,
+            onConfirm: (newName: string) => {
+                setNewDocuments(prev => prev.map((doc, i) => 
+                    i === index ? { ...doc, customName: newName } : doc
+                ));
+                setPromptModal(prev => ({ ...prev, isOpen: false }));
+                toast.success('Document renamed successfully!');
+            }
+        });
+    };
+
+    const handleRemoveExistingDocument = (docId: number) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Remove Document',
+            message: 'Are you sure you want to remove this document?',
+            onConfirm: () => {
+                setExistingDocuments(prev => prev.filter(doc => doc.id !== docId));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                toast.success('Document removed successfully!');
+            }
+        });
+    };
+
+    const handleEditExistingDocumentName = (docId: number) => {
+        const doc = existingDocuments.find(d => d.id === docId);
+        if (doc) {
+            setPromptModal({
+                isOpen: true,
+                title: 'Rename Document',
+                message: 'Enter a new name for this document:',
+                defaultValue: doc.name,
+                onConfirm: (newName: string) => {
+                    setExistingDocuments(prev => prev.map(d => 
+                        d.id === docId ? { ...d, name: newName } : d
+                    ));
+                    setPromptModal(prev => ({ ...prev, isOpen: false }));
+                    toast.success('Document renamed successfully!');
+                }
+            });
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -214,19 +332,26 @@ const ClientDetails: React.FC = () => {
             const newClientName = formData.clientName;
             const newProjectName = formData.projectName;
             
-            const updatedData: Partial<typeof formData> & { document?: string; signedDocument?: string } = { ...formData };
+            const uploadedDocuments: ClientDocument[] = [];
 
-            // Upload document if new file selected
-            if (documentFile) {
-                const response = await uploadAPI.uploadFile(documentFile, 'clientDocument');
-                updatedData.document = response.data.data.fileName;
+            // Upload all new documents
+            for (const doc of newDocuments) {
+                const response = await uploadAPI.uploadFile(doc.file, 'clientDocument');
+                uploadedDocuments.push({
+                    id: Date.now() + Math.random(),
+                    name: doc.customName,
+                    fileName: response.data.data.fileName,
+                    uploadDate: new Date().toISOString()
+                });
             }
 
-            // Upload signed document if new file selected
-            if (signedDocumentFile) {
-                const response = await uploadAPI.uploadFile(signedDocumentFile, 'clientDocument');
-                updatedData.signedDocument = response.data.data.fileName;
-            }
+            // Merge existing documents with newly uploaded ones
+            const allDocuments = [...existingDocuments, ...uploadedDocuments];
+            
+            const updatedData = {
+                ...formData,
+                documents: allDocuments
+            };
             
             // Update client
             updateClient(client.id, updatedData);
@@ -237,8 +362,7 @@ const ClientDetails: React.FC = () => {
             }
             
             setIsEditing(false);
-            setDocumentFile(null);
-            setSignedDocumentFile(null);
+            setNewDocuments([]);
             toast.success('Client updated successfully!');
         } catch (error: unknown) {
             console.error('Error updating client:', error);
@@ -355,6 +479,26 @@ const ClientDetails: React.FC = () => {
 
     return (
         <div className="p-6 space-y-6">
+            {/* Modals */}
+            <PromptModal
+                isOpen={promptModal.isOpen}
+                title={promptModal.title}
+                message={promptModal.message}
+                defaultValue={promptModal.defaultValue}
+                onConfirm={promptModal.onConfirm}
+                onCancel={() => setPromptModal(prev => ({ ...prev, isOpen: false }))}
+                placeholder="Enter document name"
+            />
+            
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                type="danger"
+            />
+            
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -526,44 +670,97 @@ const ClientDetails: React.FC = () => {
                         <div className="mt-6"><label className="block text-sm font-medium text-gray-700 mb-2">Last Payment</label><input type="text" name="lastPayment" value={formData.lastPayment} onChange={handleInputChange} className="w-full px-4 py-3 border rounded-lg" /></div>
                         <div className="mt-6"><label className="block text-sm font-medium text-gray-700 mb-2">Last Meeting Note</label><textarea name="lastMeetNote" value={formData.lastMeetNote} onChange={handleInputChange} rows={4} className="w-full px-4 py-3 border rounded-lg" /></div>
                         
-                        {/* Document Upload Section */}
-                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Document</label>
-                                {client.document && !documentFile && (
-                                    <div className="mb-2 text-sm text-green-600 flex items-center gap-1">
-                                        <span>✓</span> Current: {client.document}
-                                    </div>
-                                )}
-                                <input
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG</p>
-                                {documentFile && (
-                                    <p className="text-xs text-green-600 mt-1">✓ New file: {documentFile.name}</p>
-                                )}
+                        {/* Documents Section */}
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Documents
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={handleAddDocument}
+                                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    + Add Document
+                                </button>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Signed Document</label>
-                                {client.signedDocument && !signedDocumentFile && (
-                                    <div className="mb-2 text-sm text-green-600 flex items-center gap-1">
-                                        <span>✓</span> Current: {client.signedDocument}
+
+                            {/* Existing Documents */}
+                            {existingDocuments.length > 0 && (
+                                <div className="mb-3">
+                                    <p className="text-xs text-gray-600 mb-2 font-medium">Existing Documents:</p>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                                        {existingDocuments.map((doc) => (
+                                            <div key={doc.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                                <div className="flex items-center gap-2 flex-1">
+                                                    <span className="text-blue-600">📄</span>
+                                                    <span className="text-sm font-medium text-gray-900">{doc.name}</span>
+                                                    <span className="text-xs text-gray-500">
+                                                        ({new Date(doc.uploadDate).toLocaleDateString()})
+                                                    </span>
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEditExistingDocumentName(doc.id)}
+                                                        className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                                                    >
+                                                        ✏️ Rename
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExistingDocument(doc.id)}
+                                                        className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                                    >
+                                                        🗑️ Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                )}
-                                <input
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                    onChange={(e) => setSignedDocumentFile(e.target.files?.[0] || null)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG</p>
-                                {signedDocumentFile && (
-                                    <p className="text-xs text-green-600 mt-1">✓ New file: {signedDocumentFile.name}</p>
-                                )}
-                            </div>
+                                </div>
+                            )}
+
+                            {/* New Documents */}
+                            {newDocuments.length > 0 && (
+                                <div>
+                                    <p className="text-xs text-gray-600 mb-2 font-medium">New Documents to Upload:</p>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto border border-green-200 rounded-lg p-3 bg-green-50">
+                                        {newDocuments.map((doc, index) => (
+                                            <div key={index} className="flex items-center justify-between bg-white p-2 rounded">
+                                                <div className="flex items-center gap-2 flex-1">
+                                                    <span className="text-green-600">📄</span>
+                                                    <span className="text-sm font-medium text-gray-900">{doc.customName}</span>
+                                                    <span className="text-xs text-gray-500">({doc.file.name})</span>
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEditDocumentName(index)}
+                                                        className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+                                                    >
+                                                        ✏️ Rename
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveDocument(index)}
+                                                        className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                                    >
+                                                        🗑️ Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {existingDocuments.length === 0 && newDocuments.length === 0 && (
+                                <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                                    <p className="text-sm text-gray-500">No documents added yet</p>
+                                    <p className="text-xs text-gray-400 mt-1">Click "Add Document" to upload files</p>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="flex gap-4 mt-6"><button type="button" onClick={() => setIsEditing(false)} className="flex-1 px-6 py-3 bg-gray-100 rounded-lg">Cancel</button><button type="submit" className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg">Save Changes</button></div>
@@ -611,32 +808,27 @@ const ClientDetails: React.FC = () => {
                             <div className="space-y-4">
                                 <div><p className="text-sm text-gray-600">Status</p><span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(client.status)}`}>{client.status.toUpperCase()}</span></div>
                                 <div><p className="text-sm text-gray-600">Duration</p><p>{getProjectDuration()}</p></div>
-                                {client.document && (
+                                {client.documents && client.documents.length > 0 && (
                                     <div>
-                                        <p className="text-sm text-gray-600">Document</p>
-                                        <button
-                                            onClick={() => {
-                                                const fileUrl = uploadAPI.viewFile('clientDocument', client.document!);
-                                                window.open(fileUrl, '_blank');
-                                            }}
-                                            className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 underline mt-1"
-                                        >
-                                            <span>📄</span> View Document
-                                        </button>
-                                    </div>
-                                )}
-                                {client.signedDocument && (
-                                    <div>
-                                        <p className="text-sm text-gray-600">Signed Document</p>
-                                        <button
-                                            onClick={() => {
-                                                const fileUrl = uploadAPI.viewFile('clientDocument', client.signedDocument!);
-                                                window.open(fileUrl, '_blank');
-                                            }}
-                                            className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1 underline mt-1"
-                                        >
-                                            <span>✅</span> View Signed Document
-                                        </button>
+                                        <p className="text-md text-gray-600 mb-2">Documents</p>
+                                        <div className="space-y-2">
+                                            {client.documents.map((doc) => (
+                                                <button
+                                                    key={doc.id}
+                                                    onClick={() => {
+                                                        const fileUrl = uploadAPI.viewFile('clientDocument', doc.fileName);
+                                                        window.open(fileUrl, '_blank');
+                                                    }}
+                                                    className="w-full text-left text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2  p-2 rounded transition-colors"
+                                                >
+                                                    <span>📄</span>
+                                                    <span className="font-medium">{doc.name}</span>
+                                                    <span className="text-xs text-gray-500 ml-auto">
+                                                        {new Date(doc.uploadDate).toLocaleDateString()}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>

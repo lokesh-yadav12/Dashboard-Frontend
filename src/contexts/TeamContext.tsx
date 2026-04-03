@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export interface TeamDocument {
+    id: number;
+    name: string;
+    fileName: string;
+    uploadDate: string;
+}
+
 export interface TeamMember {
     id: number;
     employeeId: string;
@@ -18,6 +25,7 @@ export interface TeamMember {
     highestQualification?: string;
     qualificationDocument?: string;
     profileImage?: string;
+    documents?: TeamDocument[];
 }
 
 interface TeamContextType {
