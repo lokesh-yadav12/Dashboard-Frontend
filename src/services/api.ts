@@ -120,10 +120,13 @@ export const uploadAPI = {
     }),
   
   viewFile: (type: string, filename: string) => 
-    `http://localhost:5000/uploads/${type}/${filename}`,
+    `${API_URL}/upload/view/${type}/${filename}`,
   
   deleteFile: (type: string, filename: string) => 
     api.delete(`/upload/${type}/${filename}`),
+  
+  getSignedUrl: (type: string, filename: string, expiresIn: number = 3600) =>
+    api.get(`/upload/signed-url/${type}/${filename}?expiresIn=${expiresIn}`),
 };
 
 export default api;

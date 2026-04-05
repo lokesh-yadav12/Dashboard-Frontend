@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useOTPAuth } from '../contexts/OTPAuthContext';
 import img1 from "../../public/elite8digital-nav.png"
+
 const Sidebar: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user, logout } = useOTPAuth();
     const navigate = useNavigate();
 
     const menuItems = [
@@ -15,7 +16,7 @@ const Sidebar: React.FC = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/otp-login');
     };
 
     return (
@@ -53,10 +54,9 @@ const Sidebar: React.FC = () => {
             <div className="p-4 border-t border-gray-200 space-y-3">
                 <div className="flex items-center">
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                        {user?.email?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div className="ml-3 flex-1">
-                        <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
                         <p className="text-xs text-gray-500 truncate">{user?.email || 'user@example.com'}</p>
                     </div>
                 </div>

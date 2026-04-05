@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import { ClientProvider } from './contexts/ClientContext';
 import { TeamProvider } from './contexts/TeamContext';
 import { PaymentProvider } from './contexts/PaymentContext';
 import { ToastProvider } from './contexts/ToastContext';
-import AuthWrapper from './components/AuthWrapper';
+import { OTPAuthProvider } from './contexts/OTPAuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import OTPLogin from './pages/OTPLogin';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
@@ -17,21 +18,29 @@ import TeamMemberDetails from './pages/TeamMemberDetails';
 
 function App() {
     return (
-        <AuthProvider>
-            <ClientProvider>
-                <TeamProvider>
-                    <PaymentProvider>
-                        <ToastProvider>
+        <ToastProvider>
+            <OTPAuthProvider>
+                <ClientProvider>
+                    <TeamProvider>
+                        <PaymentProvider>
                             <Router>
-                                <AuthWrapper>
-                                    <DashboardContent />
-                                </AuthWrapper>
+                                <Routes>
+                                    {/* Public Route - OTP Login */}
+                                    <Route path="/otp-login" element={<OTPLogin />} />
+                                    
+                                    {/* Protected Routes - Dashboard */}
+                                    <Route path="/*" element={
+                                        <ProtectedRoute>
+                                            <DashboardContent />
+                                        </ProtectedRoute>
+                                    } />
+                                </Routes>
                             </Router>
-                        </ToastProvider>
-                    </PaymentProvider>
-                </TeamProvider>
-            </ClientProvider>
-        </AuthProvider>
+                        </PaymentProvider>
+                    </TeamProvider>
+                </ClientProvider>
+            </OTPAuthProvider>
+        </ToastProvider>
     );
 }
 
