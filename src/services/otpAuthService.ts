@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/otp-auth';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/otp-auth';
 
 export interface OTPAuthResponse {
     success: boolean;
@@ -15,7 +15,7 @@ export interface OTPAuthResponse {
 // Request OTP
 export const requestOTP = async (email: string): Promise<OTPAuthResponse> => {
     try {
-        const response = await axios.post(`${API_URL}/request-otp`, { email });
+        const response = await axios.post(`${API_URL}/otp-auth/request-otp`, { email });
         return response.data;
     } catch (error: any) {
         if (error.response?.data) {
