@@ -270,7 +270,7 @@ const TeamMemberDetails: React.FC = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-3 lg:p-6 space-y-4 lg:space-y-6">
             {/* Modals */}
             <PromptModal
                 isOpen={promptModal.isOpen}
@@ -293,20 +293,20 @@ const TeamMemberDetails: React.FC = () => {
             
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 lg:gap-4">
                     <button
                         onClick={() => navigate('/team')}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 lg:p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-lg lg:text-2xl font-bold text-gray-900">
                             {isEditing ? 'Edit Team Member' : 'Team Member Profile'}
                         </h1>
-                        <p className="text-sm text-gray-600 mt-1">{member.name} - {member.role}</p>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5 lg:mt-1">{member.name} - {member.role}</p>
                     </div>
                 </div>
             </div>
@@ -473,11 +473,11 @@ const TeamMemberDetails: React.FC = () => {
                 </form>
             ) : (
                 /* View Profile */
-                <div className="space-y-6 max-w-6xl">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8">
-                        <div className="flex items-center gap-6 mb-6">
+                <div className="space-y-4 lg:space-y-6 max-w-6xl">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 lg:p-8">
+                        <div className="flex items-center gap-3 lg:gap-6 mb-4 lg:mb-6">
                             {member.profileImage ? (
-                                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
+                                <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
                                     <img 
                                         src={uploadAPI.viewFile('profileImage', member.profileImage)}
                                         alt={member.name}
@@ -485,36 +485,36 @@ const TeamMemberDetails: React.FC = () => {
                                         onError={(e) => {
                                             // Fallback to avatar if image fails to load
                                             e.currentTarget.style.display = 'none';
-                                            e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold">${member.avatar}</div>`;
+                                            e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-blue-600 flex items-center justify-center text-white text-xl lg:text-3xl font-bold">${member.avatar}</div>`;
                                         }}
                                     />
                                 </div>
                             ) : (
-                                <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                                <div className="w-16 h-16 lg:w-24 lg:h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl lg:text-3xl font-bold shadow-lg">
                                     {member.avatar}
                                 </div>
                             )}
                             <div className="flex-1">
-                                <h3 className="text-2xl font-bold">{member.name}</h3>
-                                <p className="text-lg text-gray-700">{member.role}</p>
-                                <div className="flex gap-3 mt-2">
-                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(member.status)}`}>{member.status.toUpperCase()}</span>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getDepartmentColor(member.department)}`}>{member.department}</span>
+                                <h3 className="text-lg lg:text-2xl font-bold">{member.name}</h3>
+                                <p className="text-sm lg:text-lg text-gray-700">{member.role}</p>
+                                <div className="flex gap-2 lg:gap-3 mt-1 lg:mt-2 flex-wrap">
+                                    <span className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-semibold ${getStatusColor(member.status)}`}>{member.status.toUpperCase()}</span>
+                                    <span className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-semibold ${getDepartmentColor(member.department)}`}>{member.department}</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-6">
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Join Date</p><p className="text-lg font-semibold">{new Date(member.joinDate).toLocaleDateString()}</p></div>
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Time in Company</p><p className="text-lg font-semibold">{getTimeInCompany()}</p></div>
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Active Projects</p><p className="text-lg font-semibold">{member.projects} projects</p></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Join Date</p><p className="text-sm lg:text-lg font-semibold">{new Date(member.joinDate).toLocaleDateString()}</p></div>
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Time in Company</p><p className="text-sm lg:text-lg font-semibold">{getTimeInCompany()}</p></div>
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Active Projects</p><p className="text-sm lg:text-lg font-semibold">{member.projects} projects</p></div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">👤 Employee Information</h4>
-                            <div className="space-y-4">
-                                <div><p className="text-sm text-gray-600">Employee ID</p><p className="font-semibold text-blue-600">{member.employeeId}</p></div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">👤 Employee Information</h4>
+                            <div className="space-y-3 lg:space-y-4">
+                                <div><p className="text-xs lg:text-sm text-gray-600">Employee ID</p><p className="text-sm lg:text-base font-semibold text-blue-600">{member.employeeId}</p></div>
                                 <div><p className="text-sm text-gray-600">Email</p><p>{member.email}</p></div>
                                 <div><p className="text-sm text-gray-600">Phone</p><p>{member.phone}</p></div>
                                 {member.salary && <div><p className="text-sm text-gray-600">Salary</p><p>₹{member.salary}</p></div>}
@@ -544,25 +544,25 @@ const TeamMemberDetails: React.FC = () => {
                                 )} */}
                                 {member.profileImage && (
                                     <div>
-                                        <p className="text-sm text-gray-600">Profile Image</p>
-                                        <p className="text-sm text-blue-600 flex items-center gap-1">
+                                        <p className="text-xs lg:text-sm text-gray-600">Profile Image</p>
+                                        <p className="text-xs lg:text-sm text-blue-600 flex items-center gap-1">
                                             <span>🖼️</span> {member.profileImage}
                                         </p>
                                     </div>
                                 )}
                             </div>
                         </div>
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">💼 Work Details</h4>
-                            <div className="space-y-4 pb-6">
-                                <div><p className="text-sm text-gray-600">Department</p><span className={`px-3 py-1 rounded-full text-sm ${getDepartmentColor(member.department)}`}>{member.department}</span></div>
-                                <div><p className="text-sm text-gray-600">Status</p><span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(member.status)}`}>{member.status.toUpperCase()}</span></div>
-                                <div><p className="text-sm text-gray-600">Active Projects</p><p>{member.projects} projects</p></div>
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">💼 Work Details</h4>
+                            <div className="space-y-3 lg:space-y-4 pb-4 lg:pb-6">
+                                <div><p className="text-xs lg:text-sm text-gray-600">Department</p><span className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm ${getDepartmentColor(member.department)}`}>{member.department}</span></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">Status</p><span className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm ${getStatusColor(member.status)}`}>{member.status.toUpperCase()}</span></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">Active Projects</p><p className="text-sm lg:text-base">{member.projects} projects</p></div>
                             </div>
 
                             {member.documents && member.documents.length > 0 && (
                                     <div>
-                                        <p className="text-md text-gray-600 mb-2">Documents</p>
+                                        <p className="text-sm lg:text-base text-gray-600 mb-2">Documents</p>
                                         <div className="space-y-2">
                                             {member.documents.map((doc) => (
                                                 <button
@@ -571,7 +571,7 @@ const TeamMemberDetails: React.FC = () => {
                                                         const fileUrl = uploadAPI.viewFile('qualificationDocument', doc.fileName);
                                                         window.open(fileUrl, '_blank');
                                                     }}
-                                                    className="w-full text-left text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2  p-2 rounded  transition-colors"
+                                                    className="w-full text-left text-xs lg:text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2 p-2 rounded transition-colors"
                                                 >
                                                     <span>📄</span>
                                                     <span className="font-medium">{doc.name}</span>
@@ -593,28 +593,28 @@ const TeamMemberDetails: React.FC = () => {
                     </div>
 
                     {member.skills && member.skills.length > 0 && (
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">🎯 Skills</h4>
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">🎯 Skills</h4>
                             <div className="flex flex-wrap gap-2">
                                 {member.skills.map((skill, index) => (
-                                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{skill}</span>
+                                    <span key={index} className="px-2 lg:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs lg:text-sm">{skill}</span>
                                 ))}
                             </div>
                         </div>
                     )}
 
                     {member.bio && (
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">📝 Bio</h4>
-                            <div className="bg-gray-50 rounded-lg p-4"><p>{member.bio}</p></div>
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">📝 Bio</h4>
+                            <div className="bg-gray-50 rounded-lg p-3 lg:p-4"><p className="text-sm lg:text-base">{member.bio}</p></div>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-4 gap-4">
-                        <button onClick={() => setIsEditing(true)} className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">✏️ Edit</button>
-                        <button className="px-4 py-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100">📧 Email</button>
-                        <button className="px-4 py-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100">📞 Call</button>
-                        <button className="px-4 py-3 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100">📅 Schedule</button>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
+                        <button onClick={() => setIsEditing(true)} className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700">✏️ Edit</button>
+                        <button className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100">📧 Email</button>
+                        <button className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-green-50 text-green-600 rounded-lg hover:bg-green-100">📞 Call</button>
+                        <button className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100">📅 Schedule</button>
                     </div>
                 </div>
             )}

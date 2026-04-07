@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { useClients } from '../contexts/ClientContext';
 import { useTeam } from '../contexts/TeamContext';
 import { usePayments } from '../contexts/PaymentContext';
+import MobileFilterDropdown from '../components/MobileFilterDropdown';
 
 const Dashboard: React.FC = () => {
     const { clients } = useClients();
@@ -235,14 +236,14 @@ const Dashboard: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Dashboard</h1>
                 <div className="w-full sm:w-auto">
-                    <select
+                    <MobileFilterDropdown
                         value={timeFilter}
-                        onChange={(e) => setTimeFilter(e.target.value)}
-                        className="w-full sm:w-auto px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="monthly">Monthly View</option>
-                        <option value="yearly">Yearly View</option>
-                    </select>
+                        onChange={setTimeFilter}
+                        options={[
+                            { value: 'monthly', label: 'Monthly View' },
+                            { value: 'yearly', label: 'Yearly View' }
+                        ]}
+                    />
                 </div>
             </div>
 

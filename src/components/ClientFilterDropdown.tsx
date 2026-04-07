@@ -47,20 +47,20 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
     };
 
     return (
-        <div className="relative min-w-[200px]" ref={dropdownRef}>
+        <div className="relative w-full lg:min-w-[200px]" ref={dropdownRef}>
             <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Client</label>
             
             {/* Dropdown Button */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-left flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                    selectedClient !== 'all' ? 'pr-16' : 'pr-10'
+                className={`w-full pl-3 lg:pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-left flex items-center justify-between hover:bg-gray-50 transition-colors text-sm lg:text-base ${
+                    selectedClient !== 'all' ? 'pr-12 lg:pr-16' : 'pr-8 lg:pr-10'
                 }`}
             >
                 <span className="truncate">{getDisplayText()}</span>
                 <svg 
-                    className={`h-5 w-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`h-4 w-4 lg:h-5 lg:w-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -76,10 +76,10 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
                         e.stopPropagation();
                         onSelectClient('all');
                     }}
-                    className="absolute right-9 top-[26px] text-gray-400 hover:text-gray-600 z-10 p-1 hover:bg-gray-100 rounded transition-colors"
+                    className="absolute right-7 lg:right-9 top-[26px] text-gray-400 hover:text-gray-600 z-10 p-1 hover:bg-gray-100 rounded transition-colors"
                     title="Clear filter"
                 >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-3 w-3 lg:h-4 lg:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -87,21 +87,21 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-hidden">
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[60vh] lg:max-h-80 overflow-hidden left-0 right-0">
                     {/* Search Bar */}
-                    <div className="p-3 border-b border-gray-200 bg-gray-50">
+                    <div className="p-2 lg:p-3 border-b border-gray-200 bg-gray-50">
                         <div className="relative">
                             <input
                                 type="text"
                                 placeholder="Search clients..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                className="w-full pl-8 lg:pl-9 pr-3 py-1.5 lg:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                 autoFocus
                                 onClick={(e) => e.stopPropagation()}
                             />
                             <svg
-                                className="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
+                                className="absolute left-2 lg:left-3 top-2 lg:top-2.5 h-4 w-4 text-gray-400"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -119,7 +119,7 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
                                         e.stopPropagation();
                                         setSearchQuery('');
                                     }}
-                                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-2 lg:right-3 top-2 lg:top-2.5 text-gray-400 hover:text-gray-600"
                                 >
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -130,17 +130,17 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
                     </div>
 
                     {/* Client List */}
-                    <div className="max-h-60 overflow-y-auto">
+                    <div className="max-h-[50vh] lg:max-h-60 overflow-y-auto">
                         {/* All Clients Option */}
                         <button
                             onClick={() => handleSelectClient('all')}
-                            className={`w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between ${
+                            className={`w-full text-left px-3 lg:px-4 py-2 lg:py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between text-sm lg:text-base ${
                                 selectedClient === 'all' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
                             }`}
                         >
-                            <span>All Clients ({clients.length})</span>
+                            <span className="truncate">All Clients ({clients.length})</span>
                             {selectedClient === 'all' && (
-                                <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             )}
@@ -155,22 +155,22 @@ const ClientFilterDropdown: React.FC<ClientFilterDropdownProps> = ({
                                 <button
                                     key={client}
                                     onClick={() => handleSelectClient(client)}
-                                    className={`w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between ${
+                                    className={`w-full text-left px-3 lg:px-4 py-2 lg:py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between text-sm lg:text-base ${
                                         selectedClient === client ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
                                     }`}
                                 >
-                                    <span className="truncate">{client}</span>
+                                    <span className="truncate pr-2">{client}</span>
                                     {selectedClient === client && (
-                                        <svg className="h-5 w-5 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
                                     )}
                                 </button>
                             ))
                         ) : (
-                            <div className="px-4 py-8 text-center text-gray-500">
-                                <div className="text-3xl mb-2">🔍</div>
-                                <p className="text-sm">No clients found</p>
+                            <div className="px-3 lg:px-4 py-6 lg:py-8 text-center text-gray-500">
+                                <div className="text-2xl lg:text-3xl mb-2">🔍</div>
+                                <p className="text-xs lg:text-sm">No clients found</p>
                                 <p className="text-xs text-gray-400 mt-1">Try a different search term</p>
                             </div>
                         )}

@@ -478,7 +478,7 @@ const ClientDetails: React.FC = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-3 lg:p-6 space-y-4 lg:space-y-6">
             {/* Modals */}
             <PromptModal
                 isOpen={promptModal.isOpen}
@@ -501,20 +501,20 @@ const ClientDetails: React.FC = () => {
             
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 lg:gap-4">
                     <button
                         onClick={() => navigate('/clients')}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 lg:p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-lg lg:text-2xl font-bold text-gray-900">
                             {isEditing ? 'Edit Client' : showPaymentForm ? 'Add Payment' : showAddNoteForm ? 'Add Meeting Note' : 'Client Details'}
                         </h1>
-                        <p className="text-sm text-gray-600 mt-1">{client.clientName} - {client.projectName}</p>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5 lg:mt-1">{client.clientName} - {client.projectName}</p>
                     </div>
                 </div>
             </div>
@@ -768,49 +768,49 @@ const ClientDetails: React.FC = () => {
                 </form>
             ) : (
                 /* View Details */
-                <div className="space-y-6 max-w-6xl">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8">
-                        <div className="flex justify-between mb-6">
-                            <h3 className="text-2xl font-bold">{client.projectName}</h3>
-                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(client.status)}`}>{client.status.toUpperCase()}</span>
+                <div className="space-y-4 lg:space-y-6 max-w-6xl">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 lg:p-8">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 lg:gap-0 mb-4 lg:mb-6">
+                            <h3 className="text-lg lg:text-2xl font-bold">{client.projectName}</h3>
+                            <span className={`px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold ${getStatusColor(client.status)} w-fit`}>{client.status.toUpperCase()}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-6">
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Start Date</p><p className="text-lg font-semibold">{new Date(client.startDate).toLocaleDateString()}</p></div>
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Duration</p><p className="text-lg font-semibold">{getProjectDuration()}</p></div>
-                            <div className="bg-white bg-opacity-60 rounded-lg p-4"><p className="text-sm text-gray-600">Last Payment</p><p className="text-lg font-semibold">{client.lastPayment}</p></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Start Date</p><p className="text-sm lg:text-lg font-semibold">{new Date(client.startDate).toLocaleDateString()}</p></div>
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Duration</p><p className="text-sm lg:text-lg font-semibold">{getProjectDuration()}</p></div>
+                            <div className="bg-white bg-opacity-60 rounded-lg p-3 lg:p-4"><p className="text-xs lg:text-sm text-gray-600">Last Payment</p><p className="text-sm lg:text-lg font-semibold">{client.lastPayment}</p></div>
                         </div>
                         {(client.status === 'live' || client.status === 'completed') && client.maintenanceStartDate && (
-                            <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div className="mt-3 lg:mt-4 bg-green-50 border border-green-200 rounded-lg p-3 lg:p-4">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-2xl">🔧</span>
+                                    <span className="text-xl lg:text-2xl">🔧</span>
                                     <div>
-                                        <p className="text-sm font-medium text-green-800">Maintenance Period</p>
-                                        <p className="text-lg font-bold text-green-900">Started: {new Date(client.maintenanceStartDate).toLocaleDateString()}</p>
+                                        <p className="text-xs lg:text-sm font-medium text-green-800">Maintenance Period</p>
+                                        <p className="text-sm lg:text-lg font-bold text-green-900">Started: {new Date(client.maintenanceStartDate).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">📞 Contact Information</h4>
-                            <div className="space-y-4">
-                                <div><p className="text-sm text-gray-600">Project Bought By</p><p className="font-semibold text-blue-600">{client.projectBoughtBy}</p></div>
-                                <div><p className="text-sm text-gray-600">GSTN Number</p><p className="font-semibold">{client.gstnNumber}</p></div>
-                                <div><p className="text-sm text-gray-600">Email</p><p>{client.email}</p></div>
-                                <div><p className="text-sm text-gray-600">Phone</p><p>{client.contact}</p></div>
-                                {client.address && <div><p className="text-sm text-gray-600">Address</p><p>{client.address}</p></div>}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">📞 Contact Information</h4>
+                            <div className="space-y-3 lg:space-y-4">
+                                <div><p className="text-xs lg:text-sm text-gray-600">Project Bought By</p><p className="text-sm lg:text-base font-semibold text-blue-600">{client.projectBoughtBy}</p></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">GSTN Number</p><p className="text-sm lg:text-base font-semibold">{client.gstnNumber}</p></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">Email</p><p className="text-sm lg:text-base">{client.email}</p></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">Phone</p><p className="text-sm lg:text-base">{client.contact}</p></div>
+                                {client.address && <div><p className="text-xs lg:text-sm text-gray-600">Address</p><p className="text-sm lg:text-base">{client.address}</p></div>}
                             </div>
                         </div>
-                        <div className="bg-white border rounded-xl p-6">
-                            <h4 className="text-lg font-bold mb-4">📊 Project Details</h4>
-                            <div className="space-y-4">
-                                <div><p className="text-sm text-gray-600">Status</p><span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(client.status)}`}>{client.status.toUpperCase()}</span></div>
-                                <div><p className="text-sm text-gray-600">Duration</p><p>{getProjectDuration()}</p></div>
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <h4 className="text-base lg:text-lg font-bold mb-3 lg:mb-4">📊 Project Details</h4>
+                            <div className="space-y-3 lg:space-y-4">
+                                <div><p className="text-xs lg:text-sm text-gray-600">Status</p><span className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm ${getStatusColor(client.status)}`}>{client.status.toUpperCase()}</span></div>
+                                <div><p className="text-xs lg:text-sm text-gray-600">Duration</p><p className="text-sm lg:text-base">{getProjectDuration()}</p></div>
                                 {client.documents && client.documents.length > 0 && (
                                     <div>
-                                        <p className="text-md text-gray-600 mb-2">Documents</p>
+                                        <p className="text-sm lg:text-md text-gray-600 mb-2">Documents</p>
                                         <div className="space-y-2">
                                             {client.documents.map((doc) => (
                                                 <button
@@ -819,7 +819,7 @@ const ClientDetails: React.FC = () => {
                                                         const fileUrl = uploadAPI.viewFile('clientDocument', doc.fileName);
                                                         window.open(fileUrl, '_blank');
                                                     }}
-                                                    className="w-full text-left text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2  p-2 rounded transition-colors"
+                                                    className="w-full text-left text-xs lg:text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2 p-2 rounded transition-colors"
                                                 >
                                                     <span>📄</span>
                                                     <span className="font-medium">{doc.name}</span>
@@ -839,13 +839,13 @@ const ClientDetails: React.FC = () => {
                     {client.payments && client.payments.length > 0 && (
                         <div className="bg-white border rounded-xl overflow-hidden">
                             <div 
-                                className="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                                className="flex items-center justify-between p-4 lg:p-6 cursor-pointer hover:bg-gray-50 transition-colors"
                                 onClick={() => setShowPaymentHistory(!showPaymentHistory)}
                             >
-                                <h4 className="text-lg font-bold">💰 Payment History ({client.payments.length})</h4>
+                                <h4 className="text-base lg:text-lg font-bold">💰 Payment History ({client.payments.length})</h4>
                                 <button className="text-gray-600 hover:text-gray-900 transition-colors">
                                     <svg 
-                                        className={`w-6 h-6 transform transition-transform duration-200 ${showPaymentHistory ? 'rotate-180' : ''}`}
+                                        className={`w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-200 ${showPaymentHistory ? 'rotate-180' : ''}`}
                                         fill="none" 
                                         stroke="currentColor" 
                                         viewBox="0 0 24 24"
@@ -855,7 +855,7 @@ const ClientDetails: React.FC = () => {
                                 </button>
                             </div>
                             {showPaymentHistory && (
-                                <div className="px-6 pb-6 space-y-3 border-t border-gray-200 pt-4">
+                                <div className="px-3 lg:px-6 pb-4 lg:pb-6 space-y-2 lg:space-y-3 border-t border-gray-200 pt-3 lg:pt-4">
                                     {client.payments
                                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                                         .map((payment, index) => {
@@ -863,16 +863,16 @@ const ClientDetails: React.FC = () => {
                                             const fullPayment = allPayments.find(p => p.id === payment.id);
                                             
                                             return (
-                                        <div key={payment.id} className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                                        <div key={payment.id} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-3 lg:p-4 bg-green-50 border border-green-200 rounded-lg gap-3 lg:gap-0">
                                             {editingPaymentId === payment.id ? (
-                                                <div className="flex-1 grid grid-cols-3 gap-4 items-center">
+                                                <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 items-center">
                                                     <div>
                                                         <label className="block text-xs text-gray-600 mb-1">Amount</label>
                                                         <input
                                                             type="number"
                                                             value={editingPaymentData.amount}
                                                             onChange={(e) => setEditingPaymentData(prev => ({ ...prev, amount: e.target.value }))}
-                                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                                             placeholder="5000"
                                                         />
                                                     </div>
@@ -882,19 +882,19 @@ const ClientDetails: React.FC = () => {
                                                             type="date"
                                                             value={editingPaymentData.date}
                                                             onChange={(e) => setEditingPaymentData(prev => ({ ...prev, date: e.target.value }))}
-                                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                                         />
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleSavePayment(payment.id)}
-                                                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                                                            className="flex-1 px-3 lg:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs lg:text-sm"
                                                         >
                                                             Save
                                                         </button>
                                                         <button
                                                             onClick={handleCancelEditPayment}
-                                                            className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 text-sm"
+                                                            className="flex-1 px-3 lg:px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 text-xs lg:text-sm"
                                                         >
                                                             Cancel
                                                         </button>
@@ -902,11 +902,11 @@ const ClientDetails: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="text-2xl font-bold text-green-600">{index + 1}</span>
+                                                    <div className="flex items-center gap-3 lg:gap-4">
+                                                        <span className="text-lg lg:text-2xl font-bold text-green-600">{index + 1}</span>
                                                         <div>
-                                                            <p className="font-semibold text-gray-900">{payment.amount}</p>
-                                                            <p className="text-sm text-gray-600">{new Date(payment.date).toLocaleDateString('en-US', { 
+                                                            <p className="text-sm lg:text-base font-semibold text-gray-900">{payment.amount}</p>
+                                                            <p className="text-xs lg:text-sm text-gray-600">{new Date(payment.date).toLocaleDateString('en-US', { 
                                                                 weekday: 'short',
                                                                 year: 'numeric', 
                                                                 month: 'short', 
@@ -922,11 +922,11 @@ const ClientDetails: React.FC = () => {
                                                     <div className="flex items-center gap-2">
                                                         <button
                                                             onClick={() => handleEditPayment(payment.id)}
-                                                            className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                                                            className="px-2 lg:px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
                                                         >
                                                             ✏️ Edit
                                                         </button>
-                                                        <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
+                                                        <span className="px-2 lg:px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
                                                             Paid
                                                         </span>
                                                     </div>
@@ -946,20 +946,20 @@ const ClientDetails: React.FC = () => {
                                 className="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors"
                                 onClick={() => setShowMeetingNotes(!showMeetingNotes)}
                             >
-                                <h4 className="text-lg font-bold">📝 Meeting Notes History ({client.meetingNotes.length})</h4>
-                                <div className="flex items-center gap-3">
+                                <h4 className="text-base lg:text-lg font-bold">📝 Meeting Notes History ({client.meetingNotes.length})</h4>
+                                <div className="flex items-center gap-2 lg:gap-3">
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setShowAddNoteForm(true);
                                         }}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                                        className="px-2 lg:px-4 py-1.5 lg:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs lg:text-sm"
                                     >
                                         + Add Note
                                     </button>
                                     <button className="text-gray-600 hover:text-gray-900 transition-colors">
                                         <svg 
-                                            className={`w-6 h-6 transform transition-transform duration-200 ${showMeetingNotes ? 'rotate-180' : ''}`}
+                                            className={`w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-200 ${showMeetingNotes ? 'rotate-180' : ''}`}
                                             fill="none" 
                                             stroke="currentColor" 
                                             viewBox="0 0 24 24"
@@ -970,16 +970,16 @@ const ClientDetails: React.FC = () => {
                                 </div>
                             </div>
                             {showMeetingNotes && (
-                                <div className="px-6 pb-6 space-y-4 border-t border-gray-200 pt-4">
+                                <div className="px-3 lg:px-6 pb-4 lg:pb-6 space-y-3 lg:space-y-4 border-t border-gray-200 pt-3 lg:pt-4">
                                     {client.meetingNotes
                                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                                         .map((note, index) => (
-                                        <div key={note.id} className="border-l-4 border-blue-500 bg-gray-50 rounded-lg p-4">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl font-bold text-blue-600">{index + 1}</span>
+                                        <div key={note.id} className="border-l-4 border-blue-500 bg-gray-50 rounded-lg p-3 lg:p-4">
+                                            <div className="flex flex-col lg:flex-row items-start justify-between mb-2 gap-2 lg:gap-0">
+                                                <div className="flex items-center gap-2 lg:gap-3">
+                                                    <span className="text-lg lg:text-2xl font-bold text-blue-600">{index + 1}</span>
                                                     <div>
-                                                        <p className="text-sm font-semibold text-gray-900">
+                                                        <p className="text-xs lg:text-sm font-semibold text-gray-900">
                                                             {new Date(note.date).toLocaleDateString('en-US', { 
                                                                 weekday: 'short',
                                                                 year: 'numeric', 
@@ -992,18 +992,18 @@ const ClientDetails: React.FC = () => {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-1 lg:gap-2 flex-wrap">
                                                     {editingNoteId === note.id ? (
                                                         <>
                                                             <button
                                                                 onClick={() => handleSaveNote(note.id)}
-                                                                className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                                                                className="px-2 lg:px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
                                                             >
                                                                 Save
                                                             </button>
                                                             <button
                                                                 onClick={() => setEditingNoteId(null)}
-                                                                className="px-3 py-1 bg-gray-400 text-white rounded text-xs hover:bg-gray-500"
+                                                                className="px-2 lg:px-3 py-1 bg-gray-400 text-white rounded text-xs hover:bg-gray-500"
                                                             >
                                                                 Cancel
                                                             </button>
@@ -1012,19 +1012,19 @@ const ClientDetails: React.FC = () => {
                                                         <>
                                                             <button
                                                                 onClick={() => handleEditNote(note.id, note.note)}
-                                                                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                                                                className="px-2 lg:px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
                                                             >
                                                                 ✏️ Edit
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteNote(note.id)}
-                                                                className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                                                                className="px-2 lg:px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
                                                             >
                                                                 🗑️ Delete
                                                             </button>
                                                         </>
                                                     )}
-                                                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                    <span className="px-2 lg:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium whitespace-nowrap">
                                                         📅 Meeting #{index + 1}
                                                     </span>
                                                 </div>
@@ -1033,11 +1033,11 @@ const ClientDetails: React.FC = () => {
                                                 <textarea
                                                     value={editingNoteText}
                                                     onChange={(e) => setEditingNoteText(e.target.value)}
-                                                    className="w-full ml-11 px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full ml-0 lg:ml-11 px-3 lg:px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                                                     rows={4}
                                                 />
                                             ) : (
-                                                <p className="text-gray-700 ml-11">{note.note}</p>
+                                                <p className="text-sm lg:text-base text-gray-700 ml-0 lg:ml-11">{note.note}</p>
                                             )}
                                         </div>
                                     ))}
@@ -1045,28 +1045,28 @@ const ClientDetails: React.FC = () => {
                             )}
                         </div>
                     ) : (
-                        <div className="bg-white border rounded-xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-lg font-bold">📝 Meeting Notes History</h4>
+                        <div className="bg-white border rounded-xl p-4 lg:p-6">
+                            <div className="flex items-center justify-between mb-3 lg:mb-4">
+                                <h4 className="text-base lg:text-lg font-bold">📝 Meeting Notes History</h4>
                                 <button 
                                     onClick={() => setShowAddNoteForm(true)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                                    className="px-2 lg:px-4 py-1.5 lg:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs lg:text-sm"
                                 >
                                     + Add Note
                                 </button>
                             </div>
-                            <div className="text-center py-8">
-                                <div className="text-gray-400 text-4xl mb-3">📝</div>
-                                <p className="text-gray-500">No meeting notes yet. Add your first note!</p>
+                            <div className="text-center py-6 lg:py-8">
+                                <div className="text-gray-400 text-3xl lg:text-4xl mb-2 lg:mb-3">📝</div>
+                                <p className="text-sm lg:text-base text-gray-500">No meeting notes yet. Add your first note!</p>
                             </div>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-4 gap-4">
-                        <button onClick={() => setIsEditing(true)} className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">✏️ Edit</button>
-                        <button onClick={() => setShowPaymentForm(true)} className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">💰 Add Payment</button>
-                        <button onClick={() => setShowAddNoteForm(true)} className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">📝 Add Note</button>
-                        <button className="px-4 py-3 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100">📧 Email</button>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
+                        <button onClick={() => setIsEditing(true)} className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700">✏️ Edit</button>
+                        <button onClick={() => setShowPaymentForm(true)} className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-green-600 text-white rounded-lg hover:bg-green-700">💰 Payment</button>
+                        <button onClick={() => setShowAddNoteForm(true)} className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-purple-600 text-white rounded-lg hover:bg-purple-700">📝 Note</button>
+                        <button className="px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100">📧 Email</button>
                     </div>
                 </div>
             )}

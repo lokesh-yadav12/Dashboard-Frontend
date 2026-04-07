@@ -5,6 +5,7 @@ import { usePayments } from '../contexts/PaymentContext';
 import { uploadAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import ClientFilterDropdown from '../components/ClientFilterDropdown';
+import MobileFilterDropdown from '../components/MobileFilterDropdown';
 
 const PaymentHistory: React.FC = () => {
     const { payments, updatePayment } = usePayments();
@@ -392,10 +393,10 @@ const PaymentHistory: React.FC = () => {
                 </div>
             </div>
 
-            {/* Search Bar with Filters - All in One Line */}
-            <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-end">
-                {/* Main Search Bar */}
-                <div className="relative flex-1">
+            {/* Search Bar with Filters - Responsive Layout */}
+            <div className="flex flex-col lg:flex-row gap-3 items-stretch">
+                {/* Main Search Bar - Half width on desktop */}
+                <div className="relative flex-1 lg:w-1/2">
                     <label className="block text-xs font-medium text-gray-700 mb-1">Search</label>
                     <input
                         type="text"
@@ -429,39 +430,42 @@ const PaymentHistory: React.FC = () => {
                     )}
                 </div>
 
-                {/* Client Filter Dropdown with Search */}
-                <div className="w-full lg:w-auto">
-                    <ClientFilterDropdown
-                        clients={getUniqueClients()}
-                        selectedClient={selectedClient}
-                        onSelectClient={setSelectedClient}
-                    />
-                </div>
+                {/* Filter Group - Half width on desktop, split into 3 equal parts */}
+                <div className="flex flex-col lg:flex-row gap-3 flex-1 lg:w-1/2">
+                    {/* Client Filter Dropdown with Search */}
+                    <div className="w-full lg:flex-1">
+                        <ClientFilterDropdown
+                            clients={getUniqueClients()}
+                            selectedClient={selectedClient}
+                            onSelectClient={setSelectedClient}
+                        />
+                    </div>
 
-                {/* Group By Filter */}
-                <div className="w-full lg:min-w-[150px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Group By</label>
-                    <select
-                        value={groupBy}
-                        onChange={(e) => setGroupBy(e.target.value as 'month' | 'client')}
-                        className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
-                    >
-                        <option value="month">Month</option>
-                        <option value="client">Client</option>
-                    </select>
-                </div>
+                    {/* Group By Filter */}
+                    <div className="w-full lg:flex-1">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Group By</label>
+                        <MobileFilterDropdown
+                            value={groupBy}
+                            onChange={(value) => setGroupBy(value as 'month' | 'client')}
+                            options={[
+                                { value: 'month', label: 'Month' },
+                                { value: 'client', label: 'Client' }
+                            ]}
+                        />
+                    </div>
 
-                {/* View Type Filter */}
-                <div className="w-full lg:min-w-[150px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">View Type</label>
-                    <select
-                        value={viewType}
-                        onChange={(e) => setViewType(e.target.value as 'monthly' | 'yearly')}
-                        className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white whitespace-nowrap"
-                    >
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
+                    {/* View Type Filter */}
+                    <div className="w-full lg:flex-1">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">View Type</label>
+                        <MobileFilterDropdown
+                            value={viewType}
+                            onChange={(value) => setViewType(value as 'monthly' | 'yearly')}
+                            options={[
+                                { value: 'monthly', label: 'Monthly' },
+                                { value: 'yearly', label: 'Yearly' }
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
 

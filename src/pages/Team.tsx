@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTeam } from '../contexts/TeamContext';
 import AddTeamMemberModal from '../components/AddTeamMemberModal';
 import ConfirmModal from '../components/ConfirmModal';
+import MobileFilterDropdown from '../components/MobileFilterDropdown';
 import { uploadAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 
@@ -113,16 +114,16 @@ const Team: React.FC = () => {
                     <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Team Members</h1>
                     <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         {/* Filter */}
-                        <select
+                        <MobileFilterDropdown
                             value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
-                        >
-                            <option value="all">All Members</option>
-                            <option value="active">Active Members</option>
-                            <option value="inactive">Inactive Members</option>
-                            <option value="recent">Recently Joined</option>
-                        </select>
+                            onChange={setFilter}
+                            options={[
+                                { value: 'all', label: 'All Members' },
+                                { value: 'active', label: 'Active Members' },
+                                { value: 'inactive', label: 'Inactive Members' },
+                                { value: 'recent', label: 'Recently Joined' }
+                            ]}
+                        />
 
                         {/* Add Member Button */}
                         <button

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClients, Client } from '../contexts/ClientContext';
 import AddClientModal from '../components/AddClientModal';
+import MobileFilterDropdown from '../components/MobileFilterDropdown';
 
 const Clients: React.FC = () => {
     const { clients } = useClients();
@@ -76,10 +77,10 @@ const Clients: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Search and Filter Bar */}
-                <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
-                    {/* Search Bar */}
-                    <div className="relative flex-1">
+                {/* Search and Filter Bar - Responsive Layout */}
+                <div className="flex flex-col lg:flex-row gap-3">
+                    {/* Search Bar - Half width on desktop */}
+                    <div className="relative flex-1 lg:w-1/2">
                         <input
                             type="text"
                             placeholder="Search by client name, project, or email..."
@@ -112,28 +113,35 @@ const Clients: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Status Filter */}
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full sm:w-auto px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
-                    >
-                        <option value="all">All Projects</option>
-                        <option value="live">Live</option>
-                        <option value="development">Development</option>
-                        <option value="completed">Completed</option>
-                    </select>
+                    {/* Filter Group - Half width on desktop, split into 2 equal parts */}
+                    <div className="flex flex-col sm:flex-row gap-3 flex-1 lg:w-1/2">
+                        {/* Status Filter */}
+                        <div className="w-full sm:flex-1">
+                            <MobileFilterDropdown
+                                value={statusFilter}
+                                onChange={setStatusFilter}
+                                options={[
+                                    { value: 'all', label: 'All Projects' },
+                                    { value: 'live', label: 'Live' },
+                                    { value: 'development', label: 'Development' },
+                                    { value: 'completed', label: 'Completed' }
+                                ]}
+                            />
+                        </div>
 
-                    {/* Date Filter */}
-                    <select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="w-full sm:w-auto px-4 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
-                    >
-                        <option value="all">All Time</option>
-                        <option value="7days">Last 7 Days</option>
-                        <option value="30days">Last 30 Days</option>
-                    </select>
+                        {/* Date Filter */}
+                        <div className="w-full sm:flex-1">
+                            <MobileFilterDropdown
+                                value={filter}
+                                onChange={setFilter}
+                                options={[
+                                    { value: 'all', label: 'All Time' },
+                                    { value: '7days', label: 'Last 7 Days' },
+                                    { value: '30days', label: 'Last 30 Days' }
+                                ]}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
