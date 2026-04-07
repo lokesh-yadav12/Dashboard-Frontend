@@ -62,14 +62,14 @@ const Clients: React.FC = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Clients</h1>
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 w-fit"
+                        className="px-4 lg:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto"
                     >
                         <span className="text-lg">+</span>
                         Add Client
@@ -77,7 +77,7 @@ const Clients: React.FC = () => {
                 </div>
 
                 {/* Search and Filter Bar */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
                     {/* Search Bar */}
                     <div className="relative flex-1">
                         <input
@@ -85,7 +85,7 @@ const Clients: React.FC = () => {
                             placeholder="Search by client name, project, or email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
                         />
                         <svg
                             className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -116,7 +116,7 @@ const Clients: React.FC = () => {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full sm:w-auto px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
                     >
                         <option value="all">All Projects</option>
                         <option value="live">Live</option>
@@ -128,7 +128,7 @@ const Clients: React.FC = () => {
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        className="px-4 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full sm:w-auto px-4 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
                     >
                         <option value="all">All Time</option>
                         <option value="7days">Last 7 Days</option>

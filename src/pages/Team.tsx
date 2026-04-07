@@ -95,7 +95,7 @@ const Team: React.FC = () => {
 
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
             {/* Confirm Modal */}
             <ConfirmModal
                 isOpen={showConfirmModal}
@@ -108,38 +108,31 @@ const Team: React.FC = () => {
             />
             
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Team Members</h1>
-                <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
-                    {/* Filter */}
-                    <select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="all">All Members</option>
-                        <option value="active">Active Members</option>
-                        <option value="inactive">Inactive Members</option>
-                        <option value="recent">Recently Joined</option>
-                    </select>
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Team Members</h1>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        {/* Filter */}
+                        <select
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
+                        >
+                            <option value="all">All Members</option>
+                            <option value="active">Active Members</option>
+                            <option value="inactive">Inactive Members</option>
+                            <option value="recent">Recently Joined</option>
+                        </select>
 
-                    {/* Manual Fix Projects Button */}
-                    {/* <button
-                        onClick={() => setShowConfirmModal(true)}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200 flex items-center gap-2"
-                        title="Reset all project numbers"
-                    >
-                        🔧 Reset Projects
-                    </button> */}
-
-                    {/* Add Member Button */}
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
-                    >
-                        <span className="text-lg">+</span>
-                        Add Member
-                    </button>
+                        {/* Add Member Button */}
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="w-full sm:w-auto px-4 lg:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                        >
+                            <span className="text-lg">+</span>
+                            Add Member
+                        </button>
+                    </div>
                 </div>
             </div>
 

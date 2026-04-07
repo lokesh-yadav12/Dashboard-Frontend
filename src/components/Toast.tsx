@@ -57,17 +57,17 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }
 
     return (
         <div className="animate-slide-in">
-            <div className={`${styles.bg} ${styles.text} border-l-4 ${styles.border} rounded-lg shadow-lg p-4 min-w-[300px] max-w-md`}>
-                <div className="flex items-center gap-3">
-                    <div className={`${styles.iconBg} text-white w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0`}>
+            <div className={`${styles.bg} ${styles.text} border-l-4 ${styles.border} rounded-lg shadow-lg p-3 lg:p-4 min-w-[280px] lg:min-w-[300px] max-w-[calc(100vw-2rem)] lg:max-w-md`}>
+                <div className="flex items-center gap-2 lg:gap-3">
+                    <div className={`${styles.iconBg} text-white w-7 h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm lg:text-base`}>
                         {styles.icon}
                     </div>
-                    <p className="flex-1 font-medium">{message}</p>
+                    <p className="flex-1 font-medium text-sm lg:text-base break-words">{message}</p>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>

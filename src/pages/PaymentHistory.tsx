@@ -252,10 +252,10 @@ const PaymentHistory: React.FC = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4">
-                <h1 className="text-2xl font-bold text-gray-900">Payment History</h1>
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Payment History</h1>
             </div>
 
 
@@ -393,7 +393,7 @@ const PaymentHistory: React.FC = () => {
             </div>
 
             {/* Search Bar with Filters - All in One Line */}
-            <div className="flex gap-3 items-end">
+            <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-end">
                 {/* Main Search Bar */}
                 <div className="relative flex-1">
                     <label className="block text-xs font-medium text-gray-700 mb-1">Search</label>
@@ -430,14 +430,16 @@ const PaymentHistory: React.FC = () => {
                 </div>
 
                 {/* Client Filter Dropdown with Search */}
-                <ClientFilterDropdown
-                    clients={getUniqueClients()}
-                    selectedClient={selectedClient}
-                    onSelectClient={setSelectedClient}
-                />
+                <div className="w-full lg:w-auto">
+                    <ClientFilterDropdown
+                        clients={getUniqueClients()}
+                        selectedClient={selectedClient}
+                        onSelectClient={setSelectedClient}
+                    />
+                </div>
 
                 {/* Group By Filter */}
-                <div className="min-w-[150px]">
+                <div className="w-full lg:min-w-[150px]">
                     <label className="block text-xs font-medium text-gray-700 mb-1">Group By</label>
                     <select
                         value={groupBy}
@@ -450,7 +452,7 @@ const PaymentHistory: React.FC = () => {
                 </div>
 
                 {/* View Type Filter */}
-                <div className="min-w-[150px]">
+                <div className="w-full lg:min-w-[150px]">
                     <label className="block text-xs font-medium text-gray-700 mb-1">View Type</label>
                     <select
                         value={viewType}
@@ -478,27 +480,27 @@ const PaymentHistory: React.FC = () => {
                             <div key={group.month} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                                 {/* Month Header - Collapsible */}
                                 <div
-                                    className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-6 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors"
+                                    className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-4 lg:p-6 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors"
                                     onClick={() => toggleGroup(group.month)}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="bg-blue-600 text-white rounded-lg p-3 min-w-[120px] text-center">
-                                                <p className="text-2xl font-bold">{group.month.split(' ')[0]}</p>
-                                                <p className="text-sm opacity-90">{group.month.split(' ')[1]}</p>
+                                    <div className="flex items-center justify-between flex-wrap gap-3 lg:gap-4">
+                                        <div className="flex items-center gap-3 lg:gap-4 flex-wrap">
+                                            <div className="bg-blue-600 text-white rounded-lg p-2 lg:p-3 min-w-[100px] lg:min-w-[120px] text-center">
+                                                <p className="text-xl lg:text-2xl font-bold">{group.month.split(' ')[0]}</p>
+                                                <p className="text-xs lg:text-sm opacity-90">{group.month.split(' ')[1]}</p>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600">Total Payments</p>
-                                                <p className="text-2xl font-bold text-gray-900">{group.count}</p>
+                                                <p className="text-xs lg:text-sm text-gray-600">Total Payments</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-gray-900">{group.count}</p>
                                             </div>
-                                            <div className="ml-8">
-                                                <p className="text-sm text-gray-600">Total Amount</p>
-                                                <p className="text-2xl font-bold text-green-600">₹{group.totalAmount.toLocaleString()}</p>
+                                            <div className="lg:ml-8">
+                                                <p className="text-xs lg:text-sm text-gray-600">Total Amount</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-green-600">₹{group.totalAmount.toLocaleString()}</p>
                                             </div>
                                         </div>
                                         <button className="text-gray-600 hover:text-gray-900 transition-colors">
                                             <svg
-                                                className={`w-6 h-6 transform transition-transform duration-200 ${expandedGroups.has(group.month) ? 'rotate-180' : ''}`}
+                                                className={`w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-200 ${expandedGroups.has(group.month) ? 'rotate-180' : ''}`}
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -680,41 +682,41 @@ const PaymentHistory: React.FC = () => {
                             <div key={group.clientName} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                                 {/* Client Header - Collapsible */}
                                 <div
-                                    className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 p-6 cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-colors"
+                                    className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 p-4 lg:p-6 cursor-pointer hover:from-purple-100 hover:to-pink-100 transition-colors"
                                     onClick={() => toggleGroup(group.clientName)}
                                 >
                                     <div className="flex items-center justify-between flex-wrap gap-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="bg-purple-600 text-white rounded-lg p-3 min-w-[60px] text-center">
-                                                <p className="text-3xl font-bold">{group.clientName.charAt(0).toUpperCase()}</p>
+                                        <div className="flex items-center gap-3 lg:gap-4">
+                                            <div className="bg-purple-600 text-white rounded-lg p-2 lg:p-3 min-w-[50px] lg:min-w-[60px] text-center">
+                                                <p className="text-2xl lg:text-3xl font-bold">{group.clientName.charAt(0).toUpperCase()}</p>
                                             </div>
                                             <div>
-                                                <h3 className="text-xl font-bold text-gray-900">{group.clientName}</h3>
-                                                <p className="text-sm text-gray-600">{group.projectName}</p>
+                                                <h3 className="text-lg lg:text-xl font-bold text-gray-900">{group.clientName}</h3>
+                                                <p className="text-xs lg:text-sm text-gray-600">{group.projectName}</p>
                                             </div>
                                         </div>
-                                        <div className="flex gap-6 items-center">
+                                        <div className="flex flex-wrap gap-3 lg:gap-6 items-center">
                                             <div>
-                                                <p className="text-sm text-gray-600">Total Payments</p>
-                                                <p className="text-2xl font-bold text-gray-900">{group.count}</p>
+                                                <p className="text-xs lg:text-sm text-gray-600">Total Payments</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-gray-900">{group.count}</p>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600">Paid</p>
-                                                <p className="text-xl font-bold text-green-600">{group.paidCount}</p>
+                                                <p className="text-xs lg:text-sm text-gray-600">Paid</p>
+                                                <p className="text-lg lg:text-xl font-bold text-green-600">{group.paidCount}</p>
                                             </div>
                                             {group.pendingCount > 0 && (
                                                 <div>
-                                                    <p className="text-sm text-gray-600">Pending</p>
-                                                    <p className="text-xl font-bold text-yellow-600">{group.pendingCount}</p>
+                                                    <p className="text-xs lg:text-sm text-gray-600">Pending</p>
+                                                    <p className="text-lg lg:text-xl font-bold text-yellow-600">{group.pendingCount}</p>
                                                 </div>
                                             )}
                                             <div>
-                                                <p className="text-sm text-gray-600">Total Amount</p>
-                                                <p className="text-2xl font-bold text-green-600">₹{group.totalAmount.toLocaleString()}</p>
+                                                <p className="text-xs lg:text-sm text-gray-600">Total Amount</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-green-600">₹{group.totalAmount.toLocaleString()}</p>
                                             </div>
                                             <button className="text-gray-600 hover:text-gray-900 transition-colors">
                                                 <svg
-                                                    className={`w-6 h-6 transform transition-transform duration-200 ${expandedGroups.has(group.clientName) ? 'rotate-180' : ''}`}
+                                                    className={`w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-200 ${expandedGroups.has(group.clientName) ? 'rotate-180' : ''}`}
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"

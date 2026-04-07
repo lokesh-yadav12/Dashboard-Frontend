@@ -230,15 +230,15 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <div className="mt-4 sm:mt-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Dashboard</h1>
+                <div className="w-full sm:w-auto">
                     <select
                         value={timeFilter}
                         onChange={(e) => setTimeFilter(e.target.value)}
-                        className="px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full sm:w-auto px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="monthly">Monthly View</option>
                         <option value="yearly">Yearly View</option>
