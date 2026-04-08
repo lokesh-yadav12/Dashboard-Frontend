@@ -31,7 +31,7 @@ export const requestOTP = async (email: string): Promise<OTPAuthResponse> => {
 // Verify OTP
 export const verifyOTP = async (email: string, otp: string): Promise<OTPAuthResponse> => {
     try {
-        const response = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+        const response = await axios.post(`${API_URL}/otp-auth/verify-otp`, { email, otp });
         return response.data;
     } catch (error: any) {
         if (error.response?.data) {
