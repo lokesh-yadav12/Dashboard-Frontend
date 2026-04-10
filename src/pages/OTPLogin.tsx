@@ -33,8 +33,15 @@ const OTPLogin: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
 
+        // Check if email is allowed
+        if (email.toLowerCase() !== 'mradul.gangle001@gmail.com') {
+            toast.error('This email is not authorized for OTP login');
+            setIsLoading(false);
+            return;
+        }
+
         const result = await requestOTP(email);
-        
+
         if (result.success) {
             toast.success(result.message);
             setStep('otp');
@@ -51,7 +58,7 @@ const OTPLogin: React.FC = () => {
         setIsLoading(true);
 
         const result = await verifyOTP(email, otp);
-        
+
         if (result.success) {
             toast.success('Login successful!');
             navigate('/dashboard');
@@ -64,17 +71,23 @@ const OTPLogin: React.FC = () => {
 
     const handleResendOTP = async () => {
         if (countdown > 0) return;
-        
+
+        // Check if email is allowed
+        if (email.toLowerCase() !== 'mradul.gangle001@gmail.com') {
+            toast.error('This email is not authorized for OTP login');
+            return;
+        }
+
         setIsLoading(true);
         const result = await requestOTP(email);
-        
+
         if (result.success) {
             toast.success('OTP resent successfully!');
             setCountdown(60);
         } else {
             toast.error(result.message);
         }
-        
+
         setIsLoading(false);
     };
 
