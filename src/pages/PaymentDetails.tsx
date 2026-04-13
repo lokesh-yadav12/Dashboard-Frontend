@@ -60,15 +60,46 @@ const PaymentDetails: React.FC = () => {
         }
 
         try {
-            const response = await uploadAPI.downloadFile('invoiceDocument', payment.invoiceDocument);
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', payment.invoiceDocument);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
+            // Get the API URL from environment or default
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const token = localStorage.getItem('token');
+            
+            // Create download URL with authentication
+            const downloadUrl = `${API_URL}/upload/download/invoiceDocument/${payment.invoiceDocument}`;
+            
+            // Try to fetch the file
+            const response = await fetch(downloadUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                redirect: 'follow' // Follow redirects for R2 signed URLs
+            });
+
+            if (!response.ok) {
+                throw new Error('File not found or access denied');
+            }
+
+            // Check if response is a redirect (R2) or actual file (local)
+            const contentType = response.headers.get('content-type');
+            
+            // If it's HTML, it might be a redirect page, so open in new tab
+            if (contentType && contentType.includes('text/html')) {
+                window.open(downloadUrl, '_blank');
+                toast.success('Opening invoice in new tab...');
+            } else {
+                // It's a file, download it
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = payment.invoiceDocument || 'invoice.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                toast.success('Invoice downloaded successfully!');
+            }
         } catch (error) {
             console.error('Download error:', error);
             toast.error('Error downloading invoice. The file may not exist on the server.');
