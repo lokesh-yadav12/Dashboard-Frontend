@@ -32,16 +32,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     return (
         <div className="w-64 bg-white shadow-lg flex flex-col h-full">
             {/* Logo */}
-            <div className="flex items-center justify-between h-20 lg:h-32 px-3 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="relative flex items-center justify-center h-20 lg:h-32 px-3 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                 <img 
                     src={img1} 
                     alt='logo' 
-                    className="h-full w-full object-contain px-2"
+                    className="h-full w-auto object-contain"
                 />
                 {/* Close button for mobile */}
                 <button
                     onClick={onClose}
-                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="lg:hidden absolute right-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                     <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
