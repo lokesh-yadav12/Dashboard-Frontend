@@ -258,7 +258,7 @@ const PaymentDetails: React.FC = () => {
                 </div>
             ) : (
                 /* View Mode */
-            <div className="space-y-4 lg:space-y-6 max-w-6xl">
+            <div className="space-y-4 lg:space-y-6">
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 lg:p-8">
                     <div className="flex flex-col sm:flex-row justify-between mb-4 lg:mb-6 gap-3">
                         <div>

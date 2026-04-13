@@ -476,7 +476,7 @@ const TeamMemberDetails: React.FC = () => {
                 </form>
             ) : (
                 /* View Profile */
-                <div className="space-y-4 lg:space-y-6 max-w-6xl">
+                <div className="space-y-4 lg:space-y-6">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 lg:p-8">
                         <div className="flex items-center gap-3 lg:gap-6 mb-4 lg:mb-6">
                             {member.profileImage ? (

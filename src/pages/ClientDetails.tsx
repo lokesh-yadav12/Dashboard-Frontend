@@ -768,7 +768,7 @@ const ClientDetails: React.FC = () => {
                 </form>
             ) : (
                 /* View Details */
-                <div className="space-y-4 lg:space-y-6 max-w-6xl">
+                <div className="space-y-4 lg:space-y-6">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 lg:p-8">
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-3 lg:gap-0 mb-4 lg:mb-6">
                             <h3 className="text-lg lg:text-2xl font-bold">{client.projectName}</h3>

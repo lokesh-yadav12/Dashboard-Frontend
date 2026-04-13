@@ -101,9 +101,9 @@ const OTPLogin: React.FC = () => {
             <div className="max-w-md w-full">
                 {/* Logo/Header */}
                 <div className="text-center mb-6 lg:mb-8">
-                    <div className="inline-block p-3 lg:p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-3 lg:mb-4">
-                        <span className="text-3xl lg:text-4xl">🔐</span>
-                    </div>
+                    {/* <div className="inline-block p-3 lg:p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-3 lg:mb-4">
+                        <span className="text-3xl lg:text-4xl"></span>
+                    </div> */}
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Dashboard Login</h1>
                     <p className="text-sm lg:text-base text-gray-600">Secure access with OTP verification</p>
                 </div>
@@ -236,7 +236,7 @@ const OTPLogin: React.FC = () => {
                 {/* Footer */}
                 <div className="text-center mt-4 lg:mt-6">
                     <p className="text-xs lg:text-sm text-gray-600">
-                        🔒 Secure login with email verification
+                         Secure login with email verification
                     </p>
                 </div>
             </div>
