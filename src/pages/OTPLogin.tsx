@@ -34,7 +34,7 @@ const OTPLogin: React.FC = () => {
         setIsLoading(true);
 
         // Check if email is allowed
-        if (email.toLowerCase() !== 'lokesh916635@gmail.com') {
+        if (email.toLowerCase() !== 'mradul.gangle001@gmail.com') {
             toast.error('This email is not authorized for OTP login');
             setIsLoading(false);
             return;
@@ -73,7 +73,7 @@ const OTPLogin: React.FC = () => {
         if (countdown > 0) return;
 
         // Check if email is allowed
-        if (email.toLowerCase() !== 'lokesh916635@gmail.com') {
+        if (email.toLowerCase() !== 'mradul.gangle001@gmail.com') {
             toast.error('This email is not authorized for OTP login');
             return;
         }
