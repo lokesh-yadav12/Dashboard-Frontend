@@ -23,7 +23,7 @@ function App() {
                 <ClientProvider>
                     <TeamProvider>
                         <PaymentProvider>
-                            <Router>
+                            <Router basename='/dashboard'>
                                 <Routes>
                                     {/* Public Route - OTP Login */}
                                     <Route path="/otp-login" element={<OTPLogin />} />
@@ -84,7 +84,7 @@ function DashboardContent() {
 
                 <main className="flex-1 overflow-auto">
                     <Routes>
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/" element={<Dashboard />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/clients" element={<Clients />} />
                         <Route path="/clients/:id" element={<ClientDetails />} />
